@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.dao.UnionMapper">
+    <select id="getTickets" resultType="ticket">
+        select concat(c2.CityName, '/', c2.CityCode) `from`,
+        concat(c1.CityName, '/', c1.CityCode) `to`,
+        s.FlightNumber flightNumber,
+        s.Date depDate,
+        s.EconomyPrice price,
+        c.CabinTypeId cabinTypeId,
+        r.FlightTime flightTime,
+        s.Time depTime,
+        s.ScheduleId schedulleId
+        from schedule s
+        join route r on s.RouteId = r.RouteId
+        join city c1 on r.ArrivalAirportIATA = c1.CityCode
+        join city c2 on r.DepartureAirportIATA = c2.CityCode
+        join aircraft a on s.AircraftId = a.AircraftId
+        join seatlayout s2 on a.AircraftId = s2.AircraftId
+        join cabintype c on s2.CabinTypeId = c.CabinTypeId
+        <where>
+            <if test="from != null">
+                c2.CityName = #{from}
+            </if>
+            <if test="to != null">
+                and c1.CityName = #{to}
+            </if>
+            <if test="date != null">
+                and s.Date = #{date}
+            </if>
+        </where>
+    </select>
+    <select id="getBookedSeats" resultType="int">
+        select count(f.CabinTypeId) cabinTypeCount
+        from flightreservation f
+        join schedule s on f.ScheduleId = s.ScheduleId
+        <where>
+            <if test="date != null">
+                s.Date = #{date}
+            </if>
+            and s.ScheduleId = #{scheduleId}
+        </where>
+        group by f.CabinTypeId
+    </select>
+    <select id="getFlightInfo" resultType="flightInfo">
+        select f.ReservationId reservationId,
+        s.FlightNumber flightNumber,
+        r.DepartureAirportIATA `from`,
+        r.ArrivalAirportIATA `to`,
+        concat(s.Date,' ', s.Time) `date`,
+        ca.CabinTypeName cabinType
+        from flightreservation f
+        join cabintype ca on f.CabinTypeId = ca.CabinTypeId
+        join schedule s on f.ScheduleId = s.ScheduleId
+        join route r on s.RouteId = r.RouteId
+        <where>
+            <if test="idType != null">
+                f.IDType = #{idType}
+            </if>
+            <if test="idTypeNumber != null">
+                and f.IDTypeNumber = #{idTypeNumber}
+            </if>
+        </where>
+    </select>
+</mapper>

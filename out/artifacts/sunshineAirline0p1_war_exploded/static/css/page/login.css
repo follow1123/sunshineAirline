@@ -1,0 +1,20 @@
+body {
+    background-color: #e2e2e2;
+}
+
+form {
+    margin-top: 40%;
+    background-color: #c2c2c2;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.block-item {
+    margin-bottom: 10px;
+    margin-left: 0;
+}
+
+.block-button {
+    margin-top: 50px;
+    margin-left: 0;
+}

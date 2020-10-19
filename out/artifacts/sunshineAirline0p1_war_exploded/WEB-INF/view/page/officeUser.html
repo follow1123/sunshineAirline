@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sunshine Airline</title>
+    <link rel="stylesheet" href="static/lib/layui/css/layui.css">
+    <link rel="stylesheet" href="static/css/common/ticket.css">
+    <link rel="stylesheet" href="static/css/common/food.css">
+    <link rel="stylesheet" href="static/css/page/searchFlights.css">
+    <link rel="stylesheet" href="static/css/common/common.css">
+    <link rel="stylesheet" href="static/css/page/foodServices.css">
+    <script type="text/html" id="searchFlight">
+        <div class="layui-row layui-anim layui-anim-upbit">
+            <div class="layui-col-md1">&nbsp;</div>
+            <div class="layui-col-md10">
+                <div class="ticket-options">
+                    <form class="layui-form" action="">
+                        <div class="layui-input-inline">
+                            <select name="from" city id="from">
+                                <option value="">Departure City</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="to" city id="to">
+                                <option value="">Arrival City</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" placeholder="Date" id="datePicker" name="date" class="layui-input"
+                                   readonly>
+                        </div>
+                        <div class="layui-input-inline to-right">
+                            <input type="submit" lay-submit lay-filter="search" id="search"
+                                   class="layui-btn layui-btn-normal"
+                                   value="Search">
+                        </div>
+                    </form>
+                </div>
+                <div class="result-body">
+                    <div class="layui-row">
+                        <div class="layui-col-md7">
+                            <div id="tickets" class="ticket-container"></div>
+                            <div>
+                                <div class="layui-input-inline">
+                                    <input type="button" day="-86400000" value="pre day" class="layui-btn">
+                                </div>
+                                <div class="layui-input-inline to-right">
+                                    <input type="button" day="86400000" value="next day" class="layui-btn">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md5">
+                            <div id="ticket-detail" class="ticket-detail-container">
+
+                            </div>
+                            <div class="ticket-buy-op">
+                                <form action="" class="layui-form">
+                                    <div class="layui-input-inline">
+                                        <input type="radio" spread="1.5" name="cabinType" value="First"
+                                               title="First" lay-filter="cabinType" disabled>
+                                    </div>
+                                    <div class="layui-input-inline">
+                                        <input type="radio" spread="1.25" name="cabinType" value="Business"
+                                               title="Business" lay-filter="cabinType" disabled>
+                                    </div>
+                                    <div class="layui-input-inline">
+                                        <input type="radio" spread="1" name="cabinType" value="Economy"
+                                               title="Economy" lay-filter="cabinType" disabled>
+                                    </div>
+                                    <div class="layui-input-inline to-right">
+                                        <input type="submit" value="buy" lay-submit lay-filter="buyTicket"
+                                               class="layui-btn">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md1">&nbsp;</div>
+        </div>
+    </script>
+    <script type="text/html" id="foodServices">
+        <div class="layui-row layui-anim layui-anim-upbit">
+            <div class="layui-col-md1">&nbsp;</div>
+            <div class="layui-col-md10">
+                <div class="food-options">
+                    <form action="" class="layui-form">
+                        <div class="layui-input-inline">
+                            <input type="radio" name="idType" value="Passport" title="Passport" checked>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="radio" name="idType" value="id card" title="ID Card">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" name="idTypeNumber" placeholder="ID Type Number">
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="flight" id="flightInfo">
+                                <option value="">Please Enter ID Type Number First</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline to-right">
+                            <input type="submit" class="layui-btn" lay-submit lay-filter="load" value="Load">
+                        </div>
+                    </form>
+                </div>
+
+                <div class="food-container-wrapper">
+                    <div class="layui-row food-container">
+                        <div class="layui-col-md8">
+                            <div class="food-menu">
+                                <div class="layui-row">
+                                    <div class="layui-col-md4" id="food-col0"></div>
+                                    <div class="layui-col-md4" id="food-col1"></div>
+                                    <div class="layui-col-md4" id="food-col2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md4">
+                            <div class="food-selected"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md1">&nbsp;</div>
+        </div>
+    </script>
+</head>
+<body>
+<div id="header">
+    <ul class="layui-nav" lay-filter="head">
+        <li class="layui-nav-item layui-this"><a page="searchFlight">Search Flight</a></li>
+        <li class="layui-nav-item"><a page="foodServices">Food Services</a></li>
+        <li class="layui-nav-item"><a page="flightStatus">Flight Status</a></li>
+        <li class="layui-nav-item to-right">
+            <a href="javascript:;">Ad ad</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <dd><a>Home</a></dd>
+                <dd><a>Logout</a></dd>
+            </dl>
+        </li>
+    </ul>
+</div>
+<div id="content-body">
+
+</div>
+<script src="static/lib/jquery-3.4.1.js"></script>
+<script src="static/lib/layui/layui.all.js"></script>
+<script type="module" src="static/js/page/officeUserPage.js"></script>
+</body>
+</html>

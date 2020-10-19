@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.dao.UserMapper">
+    <select id="getAllUser" resultType="users">
+        select * from users limit 0, 10
+    </select>
+    <select id="getUser" resultType="users">
+        select * from users where email= #{arg0} and password=#{arg1}
+    </select>
+</mapper>
