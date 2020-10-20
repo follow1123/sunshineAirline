@@ -8,6 +8,9 @@ class WindowLocalStorageUtils {
      * @param value
      */
     static put(key, value) {
+        if (!key || !value || $.isEmptyObject(value)){
+            return;
+        }
         if (typeof value !== 'string') {
             value = JSON.stringify(value);
         }
@@ -38,6 +41,13 @@ class WindowLocalStorageUtils {
      */
     static remove(key) {
         window.localStorage.removeItem(key);
+    }
+
+    /**
+     * 清空所有本地数据
+     */
+    static clear(){
+        window.localStorage.clear();
     }
 }
 

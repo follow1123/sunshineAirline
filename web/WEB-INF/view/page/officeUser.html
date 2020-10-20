@@ -93,7 +93,8 @@
                             <input type="radio" name="idType" value="id card" title="ID Card">
                         </div>
                         <div class="layui-input-inline">
-                            <input type="text" class="layui-input" name="idTypeNumber" placeholder="ID Type Number">
+                            <input type="text" id="idTypeNumber" class="layui-input" name="idTypeNumber"
+                                   placeholder="ID Type Number">
                         </div>
                         <div class="layui-input-inline">
                             <select name="flight" id="flightInfo">
@@ -108,13 +109,11 @@
 
                 <div class="food-container-wrapper">
                     <div class="layui-row food-container">
-                        <div class="layui-col-md8">
-                            <div class="food-menu">
-                                <div class="layui-row">
-                                    <div class="layui-col-md4" id="food-col0"></div>
-                                    <div class="layui-col-md4" id="food-col1"></div>
-                                    <div class="layui-col-md4" id="food-col2"></div>
-                                </div>
+                        <div class="layui-col-md8 food-menu">
+                            <div class="layui-row">
+                                <div class="layui-col-md4" id="food-col0"></div>
+                                <div class="layui-col-md4" id="food-col1"></div>
+                                <div class="layui-col-md4" id="food-col2"></div>
                             </div>
                         </div>
                         <div class="layui-col-md4">

@@ -58,6 +58,122 @@
 // }
 import {antiShake1 as shake} from "./securityUtils.js";
 
+class TicketDetail {
+    #transferData;
+    #sid;
+    #data;
+    #parent;
+    #detailWrapper;
+    #layuiTab = $('<div class="layui-tab layui-tab-brief" style="margin: 0;"></div>');
+    #layuiTabTitle = $('<ul class="layui-tab-title" style="margin: 0 8px"><li class="layui-this" data="firstTicket">First Ticket</li><li data="nextTicket">Next Ticket</li></ul>');
+    #detailTemplate = {
+        from: $('<div class="detail-from">---</div>'),
+        to: $('<div class="detail-to">---</div>'),
+        departureDate: $('<div class="detail-departure-date">---</div>'),
+        arrivalDate: $('<div class="detail-arrival-date">---</div>'),
+        flightNumber: $('<div class="detail-flight-number">---</div>'),
+        cabinType: $('<div class="detail-cabin-type">---</div>'),
+        flightType: $('<div class="detail-flight-type">---</div>'),
+        totalTime: $('<div class="detail-total-time">---</div>'),
+        availableTicket: $('<div class="detail-available-ticket">---</div>'),
+        price: $('<div class="detail-price">---</div>')
+    };
+
+    #appendOne() {
+        if (!this.#detailWrapper) {
+            this.#detailWrapper = $('<div style="height: 90.8%"></div>');
+            for (let v in this.#detailTemplate) {
+                this.#detailWrapper.append(this.#detailTemplate[v]);
+            }
+        }
+        this.#parent.append(this.#detailWrapper);
+    }
+
+    #appendRound() {
+        this.#appendOne();
+        this.#parent.append(this.#layuiTab
+            .append(this.#detailWrapper)
+            .append(this.#layuiTabTitle)
+        );
+    }
+
+    get sId() {
+        return this.#data.scheduleId;
+    }
+
+    #init(parent, data) {
+        this.#parent = parent;
+        this.#parent.html('');
+        this.#sid = this.#getSid(data);
+    }
+
+    #getSid(data) {
+        let sid;
+        if ('scheduleId' in data) {
+            sid = data.scheduleId;
+        } else {
+            sid = data.firstTicket.scheduleId + ' ' + data.nextTicket.scheduleId;
+        }
+        return sid;
+    }
+
+    equalData(data) {
+        let sid = this.#getSid(data);
+        return sid === this.#sid;
+    }
+
+    bindData(parent, data) {
+        this.#init(parent, data);
+        if (data.flightType === Ticket.ONE_WAY) {
+            this.#data = data;
+            this.#appendOne();
+            this.#setOneWay();
+        } else if (data.flightType === Ticket.ROUND_WAY) {
+            this.#data = data.firstTicket;
+            this.#transferData = data;
+            this.#appendRound();
+            this.#setRoundWay(data);
+        }
+    }
+
+    #setOneWay() {
+        let data = this.#data;
+        for (let v in data) {
+            if (v in this.#detailTemplate) {
+                this.#detailTemplate[v].text(data[v]);
+            }
+        }
+        this.#detailTemplate.cabinType.text('Economy');
+        this.#detailTemplate.availableTicket.text(data.economy);
+    }
+
+    #changeData(thi, name) {
+        thi.#data = thi.#transferData[name];
+        thi.#setOneWay()
+    }
+
+    #setRoundWay() {
+        this.#setOneWay();
+        let ch = this.#changeData,
+            thi = this;
+        $('li[data]').click(function () {
+            shake(() => {
+                ch(thi, $(this).attr('data'));
+            });
+        });
+    }
+
+    #setCabinType(ct, spread) {
+        this.#detailTemplate.cabinType.text(ct);
+        this.#detailTemplate.availableTicket.text(this.#data[ct.toLowerCase()]);
+        this.#detailTemplate.price.text((Number.parseFloat(this.#data.price) * spread));
+    }
+
+    click(td, t) {
+        td.#setCabinType(t.val(), Number.parseFloat(t.attr('spread')));
+    }
+}
+
 class Ticket {
 
     data;
@@ -206,122 +322,6 @@ class Ticket {
         }
     }
 
-}
-
-class TicketDetail {
-    #transferData;
-    #sid;
-    #data;
-    #parent;
-    #detailWrapper;
-    #layuiTab = $('<div class="layui-tab layui-tab-brief" style="margin: 0;"></div>');
-    #layuiTabTitle = $('<ul class="layui-tab-title" style="margin: 0 8px"><li class="layui-this" data="firstTicket">First Ticket</li><li data="nextTicket">Next Ticket</li></ul>');
-    #detailTemplate = {
-        from: $('<div class="detail-from">---</div>'),
-        to: $('<div class="detail-to">---</div>'),
-        departureDate: $('<div class="detail-departure-date">---</div>'),
-        arrivalDate: $('<div class="detail-arrival-date">---</div>'),
-        flightNumber: $('<div class="detail-flight-number">---</div>'),
-        cabinType: $('<div class="detail-cabin-type">---</div>'),
-        flightType: $('<div class="detail-flight-type">---</div>'),
-        totalTime: $('<div class="detail-total-time">---</div>'),
-        availableTicket: $('<div class="detail-available-ticket">---</div>'),
-        price: $('<div class="detail-price">---</div>')
-    };
-
-    #appendOne() {
-        if (!this.#detailWrapper) {
-            this.#detailWrapper = $('<div style="height: 90.8%"></div>');
-            for (let v in this.#detailTemplate) {
-                this.#detailWrapper.append(this.#detailTemplate[v]);
-            }
-        }
-        this.#parent.append(this.#detailWrapper);
-    }
-
-    #appendRound() {
-        this.#appendOne();
-        this.#parent.append(this.#layuiTab
-            .append(this.#detailWrapper)
-            .append(this.#layuiTabTitle)
-        );
-    }
-
-    get sId() {
-        return this.#data.scheduleId;
-    }
-
-    #init(parent, data) {
-        this.#parent = parent;
-        this.#parent.html('');
-        this.#sid = this.#getSid(data);
-    }
-
-    #getSid(data) {
-        let sid;
-        if ('scheduleId' in data) {
-            sid = data.scheduleId;
-        } else {
-            sid = data.firstTicket.scheduleId + ' ' + data.nextTicket.scheduleId;
-        }
-        return sid;
-    }
-
-    equalData(data) {
-        let sid = this.#getSid(data);
-        return sid === this.#sid;
-    }
-
-    bindData(parent, data) {
-        this.#init(parent, data);
-        if (data.flightType === Ticket.ONE_WAY) {
-            this.#data = data;
-            this.#appendOne();
-            this.#setOneWay();
-        } else if (data.flightType === Ticket.ROUND_WAY) {
-            this.#data = data.firstTicket;
-            this.#transferData = data;
-            this.#appendRound();
-            this.#setRoundWay(data);
-        }
-    }
-
-    #setOneWay() {
-        let data = this.#data;
-        for (let v in data) {
-            if (v in this.#detailTemplate) {
-                this.#detailTemplate[v].text(data[v]);
-            }
-        }
-        this.#detailTemplate.cabinType.text('Economy');
-        this.#detailTemplate.availableTicket.text(data.economy);
-    }
-
-    #changeData(thi, name) {
-        thi.#data = thi.#transferData[name];
-        thi.#setOneWay()
-    }
-
-    #setRoundWay() {
-        this.#setOneWay();
-        let ch = this.#changeData,
-            thi = this;
-        $('li[data]').click(function () {
-            shake(() => {
-                ch(thi, $(this).attr('data'));
-            });
-        });
-    }
-
-    #setCabinType(ct, spread) {
-        this.#detailTemplate.cabinType.text(ct);
-        this.#detailTemplate.availableTicket.text(this.#data[ct.toLowerCase()]);
-        this.#detailTemplate.price.text((Number.parseFloat(this.#data.price) * spread));
-    }
-
-    click(td, t) {
-        td.#setCabinType(t.val(), Number.parseFloat(t.attr('spread')));
-    }
 }
 
 class Food {

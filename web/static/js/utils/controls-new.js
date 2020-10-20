@@ -1,5 +1,8 @@
 import {antiShake} from "./utils.js";
 
+/**
+ * 机票模板
+ */
 class Ticket {
     //该控件
     #ticketElement;
@@ -151,6 +154,9 @@ class Ticket {
     }
 }
 
+/**
+ * 机票详情模板
+ */
 class TicketDetail {
 
     //ticket detail显示区域
@@ -358,4 +364,46 @@ class TicketDetail {
     }
 }
 
-export {Ticket, TicketDetail}
+/**
+ * 食物模板
+ */
+class Food {
+    //食物图片存放的根目录
+    #rootPath = './static/img/food/';
+    #foodElement;
+    constructor(data) {
+        data.img = this.#rootPath + data.img;
+        this.#foodElement = $(this.#getFoodTemplate(data));
+    }
+
+    /**
+     * 将当前元素添加到父标签
+     * @param parent
+     */
+    appendTo(parent){
+        this.#foodElement.appendTo(parent);
+    }
+
+    /**
+     * 根据数据生成食物模板
+     * @param data
+     * @returns {string}
+     */
+    #getFoodTemplate(data){
+        return`
+        <div class="food-content-wrapper">
+            <div class="food-img-wrapper">
+                <img title="${data.description}" src="${data.img}" class="food-img">
+            </div>
+            <div class="food-info">
+                <div class="food-name">${data.name}</div>
+                <div class="food-price">${data.price}</div>
+                <i class="layui-icon layui-icon-cart-simple food-buy layui-anim layui-anim-scaleSpring"
+                anim="layui-anim-scaleSpring"></i>
+            </div>
+        </div>
+        `;
+    }
+
+}
+export {Ticket, TicketDetail, Food}

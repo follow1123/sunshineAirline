@@ -2,11 +2,11 @@ import {post} from "./general-api.js";
 
 
 export let foodServicesApi = {
-    getFightInfo: function (params, event) {
+    getFightInfo: (params, event)=> {
         params.pathName = '/FS/flightInfo';
         post(params, event);
     },
-    getFood: function (params, event) {
+    getFood: (params, event)=> {
         let pathName = '/FS/food';
         if (params) {
             params.pathName = pathName;

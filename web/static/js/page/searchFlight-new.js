@@ -8,10 +8,6 @@ import {
 
 "use strict";
 let loadSearchFlightPage = (form, layDate) => {
-
-
-
-
         //cityName储存到本地的key标识
         let cityNameKey = 'cityName',
             //cityName值
@@ -70,16 +66,7 @@ let loadSearchFlightPage = (form, layDate) => {
             }
         ;
 
-        //初始化当前页面记录的对象
-        if (!(pageRecord.searchFlightRecord = StorageUtils.get('searchFlightRecord'))) {
-            pageRecord.searchFlightRecord = {};
-        }else {
-            $('#from').val(pageRecord.searchFlightRecord.searchOptions.from);
-            selTo.val(pageRecord.searchFlightRecord.searchOptions.to);
-            datePicker.val(pageRecord.searchFlightRecord.searchOptions.date);
-            form.render();
-            btnSearch.click();
-        }
+
         //查询前一天或后一天的点击事件
         $('input[day]').click((e) => {
             shake(() => {
@@ -90,11 +77,6 @@ let loadSearchFlightPage = (form, layDate) => {
                     btnSearch.click();
                 }
             });
-        });
-        //添加一个窗口关闭时执行的事件
-        WindowUtils.addUnloadEvent(() => {
-            //将本地储存的cityName信息移除
-            StorageUtils.remove(cityNameKey);
         });
         //判断本地储存里面有没有cityName的信息
         if ((cityNames = StorageUtils.get(cityNameKey))) {
@@ -108,6 +90,8 @@ let loadSearchFlightPage = (form, layDate) => {
                 StorageUtils.put(cityNameKey, content);
             });
         }
+
+
         cityNames = null;
         //渲染layui元素
         pageRender();
@@ -123,10 +107,12 @@ let loadSearchFlightPage = (form, layDate) => {
             try {
                 //将所要执行的事件添加防抖
                 shake(() => {
+                    //判断为空
                     if ('' === field.from && '' === field.to) {
                         layer.msg('please select a city!');
                         return;
                     }
+                    //判断城市名重复
                     if (field.from === field.to) {
                         layer.msg('duplicate city name!');
                         return;
@@ -178,13 +164,18 @@ let loadSearchFlightPage = (form, layDate) => {
                 return false;
             }
         });
-    },
-    onSearchFlightPageSwitched = () => {
-        console.log('searchFlight 页面已切换');
-        if (!$.isEmptyObject(pageRecord.searchFlightRecord)) {
-            StorageUtils.put('searchFlightRecord', pageRecord.searchFlightRecord);
+
+        //初始化当前页面记录的对象
+        if (!(pageRecord.searchFlightRecord = StorageUtils.get('searchFlight'))) {
+            pageRecord.searchFlightRecord = {};
+        }else {
+            selFrom.val(pageRecord.searchFlightRecord.searchOptions.from);
+            selTo.val(pageRecord.searchFlightRecord.searchOptions.to);
+            datePicker.val(pageRecord.searchFlightRecord.searchOptions.date);
+            form.render();
+            btnSearch.click();
         }
     }
 ;
 
-export {loadSearchFlightPage, onSearchFlightPageSwitched}
+export {loadSearchFlightPage}

@@ -1,9 +1,8 @@
 import {
-    loadSearchFlightPage,
-    onSearchFlightPageSwitched
+    loadSearchFlightPage
 } from "./searchFlight-new.js";
-import {WindowUtils} from "../utils/utils.js";
-import {onFoodServicesPageSwitched} from "./foodServices-new.js";
+import {loadFoodServicesPage} from "./foodServices-new.js";
+import {WindowUtils, StorageUtils} from "../utils/utils.js";
 
 "use strict";
 
@@ -41,16 +40,13 @@ $(() => {
             searchFlight: $('#searchFlight').text(),
             foodServices: $('#foodServices').text()
         },
-
-        switchedEvents = {
-            searchFlight: onSearchFlightPageSwitched,
-            foodServices: onFoodServicesPageSwitched
-        },
-        foodServicesPageInit = form => form.render(),
         //切换页面里面的模板元素
         switchPage = (page, event) => {
             contentBody.html(pageTemplates[page]);
             if (event) event();
+        },
+        savePageRecord = ()=>{
+            StorageUtils.put(curPage, pageRecord[curPage+'Record']);
         }
     ;
     //使用layui的相应工具
@@ -59,7 +55,7 @@ $(() => {
         switchPage('searchFlight', () => loadSearchFlightPage(form, laydate));
         //导航栏切换事件
         ele.on('nav(head)', data => {
-            switchedEvents[curPage]();
+            savePageRecord();
             //判断当前导航栏的模板id是否和当前显示的模板一样
             let page = data.attr('page');
             if (curPage === page) return;
@@ -70,11 +66,14 @@ $(() => {
                     switchPage(page, () => loadSearchFlightPage(form, laydate));
                     break;
                 case'foodServices':
-                    switchPage(page, () => foodServicesPageInit(form));
+                    switchPage(page, () => loadFoodServicesPage(form));
                     break;
             }
         });
 
+    });
+    WindowUtils.addUnloadEvent(()=>{
+       StorageUtils.clear();
     });
     //注册窗口关闭事件
     WindowUtils.registerUnload();
