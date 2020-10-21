@@ -1,288 +1,104 @@
-// class TicketCla {
-//     create(params) {
-//         let data = params.data;
-//         return e.build({
-//             className: 'ticket-wrapper',
-//             parent: params.parent,
-//             onclick: function () {
-//                 if (params.click) {
-//                     params.click(this, data);
-//                 }
-//             },
-//             child: l.buildLayout({
-//                 layout: [5, 2, 5],
-//                 content: [
-//                     e.build({
-//                         className: 'ticket-left',
-//                         child: [
-//                             e.build({
-//                                 className: 'ticket-from',
-//                                 innerText: data.from
-//                             }),
-//                             e.build({
-//                                 className: 'ticket-start-time',
-//                                 innerText: data.departureDate
-//                             })
-//                         ]
-//                     }),
-//                     e.build({
-//                         className: 'ticket-mid',
-//                         child: [
-//                             e.build({
-//                                 className: 'ticket-line',
-//                                 innerText: '______'
-//                             }),
-//                             e.build({
-//                                 className: 'ticket-inventory',
-//                                 innerText: (data.first + data.economy + data.business) > 0 ? 'have' : 'no'
-//                             })
-//                         ]
-//                     }),
-//                     e.build({
-//                         className: 'ticket-right',
-//                         child: [
-//                             e.build({
-//                                 className: 'ticket-to',
-//                                 innerText: data.to
-//                             }),
-//                             e.build({
-//                                 className: 'ticket-price',
-//                                 innerText: data.price
-//                             })
-//                         ]
-//                     }),
-//                 ],
-//             })
-//         });
-//     }
-// }
-import {antiShake1 as shake} from "./securityUtils.js";
+import {antiShake} from "./utils.js";
 
-class TicketDetail {
-    #transferData;
-    #sid;
-    #data;
-    #parent;
-    #detailWrapper;
-    #layuiTab = $('<div class="layui-tab layui-tab-brief" style="margin: 0;"></div>');
-    #layuiTabTitle = $('<ul class="layui-tab-title" style="margin: 0 8px"><li class="layui-this" data="firstTicket">First Ticket</li><li data="nextTicket">Next Ticket</li></ul>');
-    #detailTemplate = {
-        from: $('<div class="detail-from">---</div>'),
-        to: $('<div class="detail-to">---</div>'),
-        departureDate: $('<div class="detail-departure-date">---</div>'),
-        arrivalDate: $('<div class="detail-arrival-date">---</div>'),
-        flightNumber: $('<div class="detail-flight-number">---</div>'),
-        cabinType: $('<div class="detail-cabin-type">---</div>'),
-        flightType: $('<div class="detail-flight-type">---</div>'),
-        totalTime: $('<div class="detail-total-time">---</div>'),
-        availableTicket: $('<div class="detail-available-ticket">---</div>'),
-        price: $('<div class="detail-price">---</div>')
-    };
 
-    #appendOne() {
-        if (!this.#detailWrapper) {
-            this.#detailWrapper = $('<div style="height: 90.8%"></div>');
-            for (let v in this.#detailTemplate) {
-                this.#detailWrapper.append(this.#detailTemplate[v]);
-            }
-        }
-        this.#parent.append(this.#detailWrapper);
-    }
+class BaseControl {
+    element;
 
-    #appendRound() {
-        this.#appendOne();
-        this.#parent.append(this.#layuiTab
-            .append(this.#detailWrapper)
-            .append(this.#layuiTabTitle)
-        );
-    }
-
-    get sId() {
-        return this.#data.scheduleId;
-    }
-
-    #init(parent, data) {
-        this.#parent = parent;
-        this.#parent.html('');
-        this.#sid = this.#getSid(data);
-    }
-
-    #getSid(data) {
-        let sid;
-        if ('scheduleId' in data) {
-            sid = data.scheduleId;
-        } else {
-            sid = data.firstTicket.scheduleId + ' ' + data.nextTicket.scheduleId;
-        }
-        return sid;
-    }
-
-    equalData(data) {
-        let sid = this.#getSid(data);
-        return sid === this.#sid;
-    }
-
-    bindData(parent, data) {
-        this.#init(parent, data);
-        if (data.flightType === Ticket.ONE_WAY) {
-            this.#data = data;
-            this.#appendOne();
-            this.#setOneWay();
-        } else if (data.flightType === Ticket.ROUND_WAY) {
-            this.#data = data.firstTicket;
-            this.#transferData = data;
-            this.#appendRound();
-            this.#setRoundWay(data);
-        }
-    }
-
-    #setOneWay() {
-        let data = this.#data;
-        for (let v in data) {
-            if (v in this.#detailTemplate) {
-                this.#detailTemplate[v].text(data[v]);
-            }
-        }
-        this.#detailTemplate.cabinType.text('Economy');
-        this.#detailTemplate.availableTicket.text(data.economy);
-    }
-
-    #changeData(thi, name) {
-        thi.#data = thi.#transferData[name];
-        thi.#setOneWay()
-    }
-
-    #setRoundWay() {
-        this.#setOneWay();
-        let ch = this.#changeData,
-            thi = this;
-        $('li[data]').click(function () {
-            shake(() => {
-                ch(thi, $(this).attr('data'));
-            });
-        });
-    }
-
-    #setCabinType(ct, spread) {
-        this.#detailTemplate.cabinType.text(ct);
-        this.#detailTemplate.availableTicket.text(this.#data[ct.toLowerCase()]);
-        this.#detailTemplate.price.text((Number.parseFloat(this.#data.price) * spread));
-    }
-
-    click(td, t) {
-        td.#setCabinType(t.val(), Number.parseFloat(t.attr('spread')));
+    /**
+     * 将当前元素添加到父标签
+     * @param parent
+     */
+    appendTo(parent) {
+        this.element.appendTo(parent);
     }
 }
 
-class Ticket {
+/**
+ * 机票模板
+ */
+class Ticket extends BaseControl {
+    //该控件
+    #ticketElement;
+    //该控件内的数据
+    #data;
+    #ticketDetail;
 
-    data;
-    flag;
-    click;
-    ticket;
-    parent;
-
-    constructor() {
-        this.#assignParams(arguments);
-        this.ticket = $(this.getTicketTemplate()).click(() => {
-            this.click(this.ticket, this.data);
-        }).appendTo(this.parent);
-    }
-
-    #assignParams(params) {
-        for (let v of params) {
-            if (this.#is$(v)) {
-                this.parent = v;
-            } else if (typeof v === 'object') {
-                this.data = this.#dataParse(v);
-            } else if (typeof v === 'function') {
-                this.click = v;
-            } else if (typeof v === 'string') {
-                this.flag = v;
-            }
+    constructor(flightType, data, clickEvent, ticketDetail) {
+        super();
+        this.#ticketDetail = ticketDetail;
+        let ticketTemplate;
+        if ('None Stop' === flightType) {
+            this.#data = this.#parseOneWay(data);
+            ticketTemplate = this.#oneWayTicketTemplate();
+        } else if ('One Stop' === flightType) {
+            this.#data = this.#parseRoundWay(data);
+            ticketTemplate = this.#roundWayTicketTemplate();
         }
+        this.#data.flightType = flightType;
+        let ticket = this;
+        this.element = $(ticketTemplate).click(() => {
+            antiShake(() => {
+                clickEvent(ticket, this.#data)
+            });
+            this.#ticketDetail.bindTicket(this.#data);
+        });
     }
 
-    getTicketTemplate() {
-        if (Ticket.ONE_WAY === this.flag) {
-            return this.#oneWayTicketTemplate();
-        } else if (Ticket.ROUND_WAY === this.flag) {
-            return this.#roundWayTicketTemplate();
-        }
-    }
-
-    #oneWayTicketTemplate() {
-        let data = this.data;
+    /**
+     * 获取票的通用模板
+     * @param ticket
+     * @returns {string}
+     */
+    #getTicketTemplate(ticket) {
         return `
-            <div class="ticket-wrapper">
-                <l-layout layout="5-2-5">
-                    <div class="ticket-left">
-                        <div class="ticket-from">${data.from}</div>
-                        <div class="ticket-start-time">${data.departureDate}</div>
-                    </div>
-                    <div class="ticket-mid">
-                        <div class="ticket-line">______</div>
-                        <div class="ticket-inventory">${(data.first + data.economy + data.business) > 0 ? (data.first + data.economy + data.business) : 'no'}</div>
-                    </div>
-                    <div class="ticket-right">
-                        <div class="ticket-to">${data.to}</div>
-                        <div class="ticket-price">${data.price}</div>
-                    </div>
-                </l-layout>
-            </div>`;
-    }
-
-    #roundWayTicketTemplate() {
-        let firstData = this.data.firstTicket;
-        let nextData = this.data.nextTicket;
-        return `
-        <div class="ticket-wrapper">
-            <l-layout layout="5-2-5">
-                    <div class="ticket-left">
-                        <div class="ticket-from">${firstData.from}</div>
-                        <div class="ticket-start-time">${firstData.departureDate}</div>
-                    </div>
-                    <div class="ticket-mid">
-                        <div class="ticket-line">______</div>
-                        <div class="ticket-inventory">${(firstData.first + firstData.economy + firstData.business) > 0 ? (firstData.first + firstData.economy + firstData.business) : 'no'}</div>
-                    </div>
-                    <div class="ticket-right">
-                        <div class="ticket-to">${firstData.to}</div>
-                        <div class="ticket-price">${firstData.price}</div>
-                    </div>
-                </l-layout>
-                <div class="ticket-transfer-info">${this.data.transferInfo}</div>
-                <l-layout layout="5-2-5">
-                    <div class="ticket-left">
-                        <div class="ticket-from">${nextData.from}</div>
-                        <div class="ticket-start-time">${nextData.departureDate}</div>
-                    </div>
-                    <div class="ticket-mid">
-                        <div class="ticket-line">______</div>
-                        <div class="ticket-inventory">${(nextData.first + nextData.economy + nextData.business) > 0 ? (nextData.first + nextData.economy + nextData.business) : 'no'}</div>
-                    </div>
-                    <div class="ticket-right">
-                        <div class="ticket-to">${nextData.to}</div>
-                        <div class="ticket-price">${nextData.price}</div>
-                    </div>
-                </l-layout>
+        <div class="layui-row">
+            <div class="layui-col-md5">
+                <div class="ticket-from">${ticket.from}</div>
+                <div class="ticket-start-time">${ticket.departureDate}</div>
+            </div>
+            <div class="layui-col-md2">
+                <div class="ticket-line">______</div>
+                <div class="ticket-inventory">${(ticket.first + ticket.economy + ticket.business) > 0 ? (ticket.first + ticket.economy + ticket.business) : 'no'}</div>
+            </div>
+            <div class="layui-col-md5">
+                <div class="ticket-to">${ticket.to}</div>
+                <div class="ticket-price">${ticket.price}</div>
+            </div>
         </div>
         `
     }
 
-    #is$(ele) {
-        return ele[0] && ele[0] instanceof HTMLElement;
+    /**
+     * 获取单程票的模板
+     * @returns {string}
+     */
+    #oneWayTicketTemplate() {
+        return `
+            <div class="ticket-wrapper">
+                ${this.#getTicketTemplate(this.#data)}
+            </div>`;
     }
 
-    #dataParse(data) {
-        if (this.flag === Ticket.ONE_WAY) {
-            return this.#oneWayDateParse(data);
-        } else if (this.flag === Ticket.ROUND_WAY) {
-            return this.#roundWayDataParse(data);
-        }
+    /**
+     * 获取多程票模板
+     * @returns {string}
+     */
+    #roundWayTicketTemplate() {
+        return `
+        <div class="ticket-wrapper">
+            ${this.#getTicketTemplate(this.#data.firstTicket)}
+            <div class="ticket-transfer-info">${this.#data.transferInfo}</div>
+            ${this.#getTicketTemplate(this.#data.nextTicket)}
+        </div>
+        `
     }
 
-    #oneWayDateParse(data) {
+    /**
+     * 解析数据为单程票的数据
+     * @param data
+     * @returns {{business: *, totalTime: (string|undefined), economy: *, flightType, arrivalDate: (string|undefined), flightNumber: *, price: *, from: *, to: Document.to, departureDate: string, flightTime: *, first: *, scheduleId: *}}
+     */
+    #parseOneWay(data) {
         return {
             from: data.from,
             to: data.to,
@@ -296,24 +112,45 @@ class Ticket {
             price: data.price,
             flightNumber: data.flightTime,
             scheduleId: data.scheduleId,
-            flightType: this.flag
         }
     }
 
-    #roundWayDataParse(data) {
+    /**
+     * 解析数据为多程票的数据
+     * @param data
+     * @returns {{firstTicket: {business: *, totalTime: (string|undefined), economy: *, flightType, arrivalDate: (string|undefined), flightNumber: *, price: *, from: *, to: Document.to, departureDate: string, flightTime: *, first: *, scheduleId: *}, nextTicket: {business: *, totalTime: (string|undefined), economy: *, flightType, arrivalDate: (string|undefined), flightNumber: *, price: *, from: *, to: Document.to, departureDate: string, flightTime: *, first: *, scheduleId: *}}}
+     */
+    #parseRoundWay(data) {
         let finalData = {
-            firstTicket: this.#oneWayDateParse(data.firstTicket),
-            nextTicket: this.#oneWayDateParse(data.nextTicket)
+            firstTicket: this.#parseOneWay(data.firstTicket),
+            nextTicket: this.#parseOneWay(data.nextTicket)
         };
         let transferTime =
             Date.parse(finalData.nextTicket.departureDate) -
             Date.parse(finalData.firstTicket.arrivalDate);
         finalData.transferInfo = this.#getDate(transferTime) +
             ' Transfer in ' + finalData.firstTicket.to;
-        finalData.flightType = Ticket.ROUND_WAY;
         return finalData;
     }
 
+    /**
+     * 设置该控件为选中状态
+     */
+    selected() {
+        this.element.css('background-color', '#5FB878');
+    }
+
+    /**
+     * 设置该控件为未选中状态
+     */
+    unselected() {
+        this.element.css('background-color', '#1E9FFF');
+    }
+
+    /**
+     * 将日期转换成固定的格式
+     * @returns {string|void|*}
+     */
     #getDate() {
         if (arguments.length === 1) {
             return new Date(Date.parse('2020-01-01 00:00:00') + arguments[0]).format('HH\h mm') + 'm';
@@ -321,54 +158,362 @@ class Ticket {
             return new Date(Date.parse(arguments[0]) + arguments[1]).format('yyyy-MM-dd HH:mm:ss')
         }
     }
-
 }
 
-class Food {
-    #pathName = './static/img/food/';
-    #data;
-    #parent;
-    #click;
+/**
+ * 机票详情模板
+ */
+class TicketDetail extends BaseControl {
 
-    get data() {
+    //显示区域的html元素
+    #detailData;
+    //夫标签
+    #parent;
+    //多程票tab
+    #roundWayTab;
+    //ticket detail显示区域是否存在多程票tab
+    #haveTab;
+    //cabinType切换按钮
+    #cabinTypeSwitch;
+    //layuiform表单工具
+    #form;
+    //当前显示区域所显示的数据
+    #data;
+
+    constructor(parent) {
+        super();
+        this.#parent = parent;
+        this.element = $(this.#getDetailTemplate());
+        this.#roundWayTab = this.#getRoundWayTab();
+        this.#haveTab = false;
+    }
+
+    /**
+     * 显示该控件
+     */
+    show() {
+        this.#parent.html('');
+        this.appendTo(this.#parent);
+        this.#detailData = this.#getDetailDataElement();
+    }
+
+    /**
+     * 重置控件内的布局
+     */
+    reset() {
+        this.#resetDetailData();
+        this.#removeTab();
+    }
+
+    /**
+     * 添加tab元素
+     */
+    #putTab() {
+        if (!this.#haveTab) {
+            this.#parent.append(this.#roundWayTab);
+            this.#haveTab = true;
+        }
+    }
+
+    /**
+     * 移除tab元素
+     */
+    #removeTab() {
+        if (this.#haveTab) {
+            this.#parent.children().last().remove();
+            this.#haveTab = false;
+        }
+    }
+
+    /**
+     * 关联一个ticket，并显示该ticket的具体信息
+     * @param data
+     */
+    bindTicket(data) {
+        if ('None Stop' === data.flightType) {
+            this.#removeTab();
+            this.#setData(data);
+        } else if ('One Stop' === data.flightType) {
+            this.#putTab();
+            this.#setData(data.firstTicket);
+            this.#tabClick(data);
+        }
+        this.#resetCabinTypeSwitch();
+    }
+
+    /**
+     * 判断当前ticket detail的显示区域是否显示数据
+     * @returns {*}
+     */
+    haveData() {
         return this.#data;
     }
 
-    constructor() {
-        this.#assignParams(arguments);
-        this.#data.img = this.#pathName + this.#data.img;
-        let data = this.#data;
-        this.#parent.append($(`<div class="food-content-wrapper">
-                        <div class="food-img-wrapper">
-                            <img title="${data.description}" src="${data.img}" class="food-img">
-                        </div>
-                        <div class="food-info">
-                            <div class="food-name">${data.name}</div>
-                            <div class="food-price">${data.price}</div>
-                            <i class="layui-icon layui-icon-cart-simple food-buy"></i>
-                        </div>
-                    </div>`).click(() => this.#click(this.#data)));
-    }
-
-    #assignParams(params) {
-        for (let v of params) {
-            if (this.#is$(v)) {
-                this.#parent = v;
-            } else if (typeof v === 'object') {
-                this.#data = v;
-            } else if (typeof v === 'function') {
-                this.#click = v;
+    /**
+     * 设置票内的信息
+     * @param data
+     */
+    #setData(data) {
+        this.#data = data;
+        $.each(this.#detailData, (k, v) => {
+            if (k in data) {
+                v.text(data[k]);
             }
-        }
+        });
+        this.#detailData.cabinType.text('Economy');
+        this.#detailData.avaTickets.text(data.economy);
     }
 
-    #is$(ele) {
-        if (ele[0]) {
-            return ele[0] instanceof HTMLElement;
-        }
+    /**
+     * 重置ticket detail内的信息
+     */
+    #resetDetailData() {
+        $.each(this.#detailData, (k, v) => {
+            v.text('---');
+        })
+    }
+
+    /**
+     * 获取票的模板
+     * @returns {string}
+     */
+    #getDetailTemplate() {
+        return `
+        <div id="detail-wrapper">
+            <div class="detail-from">---</div>
+            <div class="detail-to">---</div>
+            <div class="detail-departure-date">---</div>
+            <div class="detail-arrival-date">---</div>
+            <div class="detail-flight-number">---</div>
+            <div class="detail-cabin-type">---</div>
+            <div class="detail-flight-type">---</div>
+            <div class="detail-total-time">---</div>
+            <div class="detail-available-ticket">---</div>
+            <div class="detail-price">---</div>
+        </div>
+        `
+    }
+
+    /**
+     * 获取票的全部信息的对象
+     * @returns {{avaTickets: (*|jQuery|HTMLElement), totalTime: (*|jQuery|HTMLElement), price: (*|jQuery|HTMLElement), from: (*|jQuery|HTMLElement), to: (*|jQuery|HTMLElement), departureDate: (*|jQuery|HTMLElement), flightType: (*|jQuery|HTMLElement), cabinType: (*|jQuery|HTMLElement), arrivalDate: (*|jQuery|HTMLElement), flightNumber: (*|jQuery|HTMLElement)}}
+     */
+    #getDetailDataElement() {
+        return {
+            from: $('#detail-wrapper div.detail-from'),
+            to: $('#detail-wrapper div.detail-to'),
+            departureDate: $('#detail-wrapper div.detail-departure-date'),
+            arrivalDate: $('#detail-wrapper div.detail-arrival-date'),
+            flightNumber: $('#detail-wrapper div.detail-flight-number'),
+            cabinType: $('#detail-wrapper div.detail-cabin-type'),
+            flightType: $('#detail-wrapper div.detail-flight-type'),
+            totalTime: $('#detail-wrapper div.detail-total-time'),
+            avaTickets: $('#detail-wrapper div.detail-available-ticket'),
+            price: $('#detail-wrapper div.detail-price')
+        };
+    }
+
+    /**
+     * 获取多程票的tab元素
+     * @returns {*|jQuery|HTMLElement}
+     */
+    #getRoundWayTab() {
+        return $(`
+            <div class="layui-tab layui-tab-brief" style="margin-top: 50px;">
+                <ul class="layui-tab-title" style="margin: 0 8px">
+                    <li class="layui-this" data="firstTicket">First Ticket</li>
+                    <li data="nextTicket">Next Ticket</li>
+                </ul>
+            </div>
+        `);
+    }
+
+    /**
+     * 设置多程票的选票按钮的点击事件
+     * @param data
+     */
+    #tabClick(data) {
+        $('li[data]').click((e) => {
+            antiShake(() => {
+                this.#setData((this.#data = data[$(e.currentTarget).attr('data')]));
+                this.#resetCabinTypeSwitch();
+            });
+        })
+    }
+
+    /**
+     * 绑定cabinType按钮实现点击切换cabinType等功能
+     * @param form
+     * @param cabinTypeSwitch
+     */
+    bindCabinType(form, cabinTypeSwitch) {
+        this.#cabinTypeSwitch = cabinTypeSwitch;
+        this.#form = form;
+        form.on('radio(cabinType)', data => {
+            antiShake(() => {
+                if (this.haveData()) {
+                    this.#detailData.cabinType.text(data.value);
+                    this.#detailData.avaTickets.text(this.#data[data.value.toLowerCase()]);
+                    this.#detailData.price.text((this.#data.price * Number.parseFloat($(data.elem).attr('spread'))));
+                }
+            });
+        })
+    }
+
+    /**
+     * 重置cabinType选项的状态
+     */
+    #resetCabinTypeSwitch() {
+        this.#cabinTypeSwitch.prop('checked', true);
+        this.#form.render('radio');
     }
 }
 
-export {
-    Ticket, TicketDetail, Food
+/**
+ * 食物模板
+ */
+class Food extends BaseControl {
+    //食物图片存放的根目录
+    #rootPath = './static/img/food/';
+    #btnBuy;
+    #data;
+
+    constructor(data) {
+        super();
+        this.#data = data;
+        data.img = this.#rootPath + data.img;
+        this.element = $(this.#getFoodTemplate(data));
+    }
+
+    /**
+     * 根据数据生成食物模板
+     * @param data
+     * @returns {string}
+     */
+    #getFoodTemplate(data) {
+        return `
+        <div class="food-content-wrapper" food-id="${data.foodId}">
+            <div class="food-img-wrapper">
+                <img title="${data.description}" src="${data.img}" class="food-img">
+            </div>
+            <div class="food-info">
+                <div class="food-name" title="${data.name}">${data.name}</div>
+                <div class="food-price">${data.price}</div>
+                <i class="layui-icon layui-icon-cart-simple food-buy layui-anim layui-anim-scaleSpring"
+                anim="layui-anim-scaleSpring"></i>
+            </div>
+        </div>
+        `;
+    }
+
+    appendTo(parent) {
+        super.appendTo(parent);
+        this.#setEvent(this.#data);
+    }
+
+    #setEvent(data) {
+        this.#btnBuy = $(`.food-content-wrapper[food-id="${data.foodId}"] .food-buy`);
+        this.#btnBuy.mousedown(function () {
+            $(this).removeClass($(this).attr('anim'));
+        }).mouseup(function () {
+            $(this).addClass($(this).attr('anim'));
+        }).click(() => {
+            let childClass = `.food-choose[food-id="${data.foodId}"]`;
+            if ($('#food-choose').children(childClass).length){
+                $(`${childClass} button[add]`).click();
+                return;
+            }
+            new FoodChoose(data).appendTo($('#food-choose'));
+        });
+    }
+
 }
+
+/**
+ * 选择的食物模板
+ */
+class FoodChoose extends BaseControl {
+    #data;
+
+    constructor(data) {
+        super();
+        this.#data = data;
+        this.element = $(this.#getFoodSelectedTemplate(data));
+    }
+
+    appendTo(parent) {
+        super.appendTo(parent);
+        this.#setEvent(this.#data);
+    }
+
+    #getFoodSelectedTemplate(data) {
+        return `
+        <div class="layui-row layui-anim layui-anim-fadein food-choose" food-id="${data.foodId}">
+            <div class="layui-col-md4 food-img-wrapper-choose">
+                <img class="food-img-choose" src="${data.img}" title="${data.description}">
+            </div>      
+            <div class="layui-col-md8 food-info-choose">
+            <div class="food-name-wrapper-choose layui-input-inline">
+                <div class="food-name-choose" title="${data.name}">${data.name}</div>
+            </div>
+                <div amount anim="layui-anim-upbit" class="food-amount-choose layui-anim layui-anim-upbit">1</div>
+                <div class="food-operating">
+                    <div class="food-price-choose" price="${data.price}">${data.price}</div>
+                    <div class="food-operating-btn">
+                        <button type="button" delete class="layui-btn layui-btn-primary layui-btn-xs">
+                            <i class="layui-icon">&#xe640;</i>
+                        </button>
+                        <div class="layui-btn-group">
+                            <button type="button" sub class="layui-btn layui-btn-primary layui-btn-xs">
+                                <i class="layui-icon">&#xe67e;</i>
+                            </button>
+                            <button style="color: #009E94" type="button" amount
+                                    class="layui-btn layui-btn-primary layui-btn-xs  layui-btn-disabled">1
+                            </button>
+                            <button type="button" add class="layui-btn layui-btn-primary layui-btn-xs">
+                                <i class="layui-icon">&#xe654;</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `
+    }
+
+    #setEvent(data) {
+        let parentClass = `.food-choose[food-id="${data.foodId}"]`,
+            btnAdd = $(`${parentClass} button[add]`),
+            btnSub = $(`${parentClass} button[sub]`),
+            btnAmount = $(`${parentClass} button[amount]`),
+            btnDelete = $(`${parentClass} button[delete]`),
+            divAmount = $(`${parentClass} div[amount]`),
+            divPrice = $(`${parentClass} div[price]`);
+        btnDelete.click(()=>btnDelete.parents(parentClass).remove());
+        btnAdd.click(function () {
+            let curAmount = Number.parseInt(btnAmount.text()) + 1;
+            btnAmount.text(curAmount);
+            divAmount.text(curAmount);
+            divPrice.text(Number.parseFloat(divPrice.attr('price')) * curAmount)
+        });
+        btnSub.click(function () {
+            let curAmount;
+            if ((curAmount = Number.parseInt(btnAmount.text())) === 1) {
+                return;
+            }
+            curAmount--;
+            btnAmount.text(curAmount);
+            divAmount.text(curAmount);
+            divPrice.text(Number.parseFloat(divPrice.attr('price')) * curAmount)
+        });
+        btnAdd.mousedown(() =>
+            divAmount.removeClass(divAmount.attr('anim'))
+        ).mouseup(() =>
+            divAmount.addClass(divAmount.attr('anim'))
+        );
+
+    }
+}
+
+
+export {Ticket, TicketDetail, Food, FoodChoose}

@@ -1,7 +1,5 @@
-import {
-    loadSearchFlightPage
-} from "./searchFlight-new.js";
-import {loadFoodServicesPage} from "./foodServices-new.js";
+import {loadSearchFlightPage} from "./searchFlight.js";
+import {loadFoodServicesPage} from "./foodServices.js";
 import {WindowUtils, StorageUtils} from "../utils/utils.js";
 
 "use strict";

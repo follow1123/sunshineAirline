@@ -5,9 +5,6 @@
     margin-bottom: 10px;
     height: 450px;
 }
-.ticket-left, .ticket-mid, .ticket-right{
-    width: 100%;
-}
 .ticket-wrapper{
     background-color: #1E9FFF;
     border-radius: 5px;
@@ -51,8 +48,8 @@
 .ticket-price:before{
     content: '$';
 }
-.ticket-detail-area{
-    margin-left: 10px;
+.ticket-detail-container{
+    margin: 0 0 10px 10px;
     height: 450px;
     border-radius: 5px;
     background-color: #f2f2f2

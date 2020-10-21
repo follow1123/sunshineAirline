@@ -1,5 +1,5 @@
 import {searchFlightApi as sfApi} from "../api/searchFilght-api.js";
-import {Ticket, TicketDetail} from "../utils/controls-new.js";
+import {Ticket, TicketDetail} from "../utils/controls.js";
 import {
     StorageUtils,
     WindowUtils,
