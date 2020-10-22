@@ -103,7 +103,8 @@
                             </select>
                         </div>
                         <div class="layui-input-inline to-right">
-                            <input type="submit" class="layui-btn" lay-submit lay-filter="load" value="Load">
+                            <input type="submit" class="layui-btn layui-btn layui-btn-normal" lay-submit
+                                   lay-filter="load" value="Load">
                         </div>
                     </form>
                 </div>
@@ -117,12 +118,23 @@
                                 <div class="layui-col-md4" id="food-col2"></div>
                             </div>
                         </div>
-                        <div id="food-choose" class="layui-col-md4">
+                        <div id="food-choose-container" class="layui-col-md4">
 
 
                         </div>
                     </div>
                 </div>
+                <form class="food-total">
+                    <div id="total-info" class="layui-input-inline total-info">
+                        <span class="total-item">0</span>
+                        <span class="total-amount">0</span>
+                        <span class="total-price">0</span>
+                    </div>
+                    <div class="layui-input-inline to-right">
+                        <input type="button" id="empty" class="layui-btn" value="Empty">
+                        <input type="submit" class="layui-btn" lay-submit lay-filter="confirm" value="Confirm">
+                    </div>
+                </form>
             </div>
             <div class="layui-col-md1">&nbsp;</div>
         </div>

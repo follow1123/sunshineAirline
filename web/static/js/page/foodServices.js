@@ -32,9 +32,8 @@ let loadFoodServicesPage = (form) => {
                 selFlightInfo.append($(`<option value="${v.reservationId}">${v.flightNumber},${v.from}-${v.to},${v.date.split('.')[0]},${v.cabinType}</option>`));
             });
             form.render('select');
-        }
-    ;
-
+        };
+        //idTypeNumber框失去焦点时的事件
     inpIdTypeNum.blur(() => {
         let param = {
             idType: radIdType,
@@ -59,20 +58,18 @@ let loadFoodServicesPage = (form) => {
 
         })
     });
+    //清空按钮的点击事件，将选择的食物全部清空
+    $('#empty').click(function () {
+        $('button[delete]').click();
+    });
 
-
-    fsApi.getFood({}, (content, code)=>{
-        $.each(content, (i, v)=>{
+    /**
+     * 获取食物信息
+     */
+    fsApi.getFood({}, (content, code) => {
+        $.each(content, (i, v) => {
             new Food(v).appendTo(foodCols[i % 3]);
         });
-        // let btnBuy = $('.food-buy');
-        // btnBuy.mousedown(function () {
-        //     $(this).removeClass($(this).attr('anim'));
-        // }).mouseup(function () {
-        //     $(this).addClass($(this).attr('anim'));
-        // }).click(()=>{
-        //
-        // });
     });
     form.render();
 };

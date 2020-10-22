@@ -375,8 +375,9 @@ class TicketDetail extends BaseControl {
 class Food extends BaseControl {
     //食物图片存放的根目录
     #rootPath = './static/img/food/';
-    #btnBuy;
     #data;
+    //食物总计区域的操作器
+    #totalInfo = new TotalInfo();
 
     constructor(data) {
         super();
@@ -411,19 +412,26 @@ class Food extends BaseControl {
         this.#setEvent(this.#data);
     }
 
+    /**
+     * 设置元素内的事件
+     * @param data
+     */
     #setEvent(data) {
-        this.#btnBuy = $(`.food-content-wrapper[food-id="${data.foodId}"] .food-buy`);
-        this.#btnBuy.mousedown(function () {
+        //设置购买按钮点击时的动画和点击事件
+        $(`.food-content-wrapper[food-id="${data.foodId}"] .food-buy`).mousedown(function () {
             $(this).removeClass($(this).attr('anim'));
         }).mouseup(function () {
             $(this).addClass($(this).attr('anim'));
         }).click(() => {
-            let childClass = `.food-choose[food-id="${data.foodId}"]`;
-            if ($('#food-choose').children(childClass).length){
-                $(`${childClass} button[add]`).click();
-                return;
+            let childClass = `.food-choose[food-id="${data.foodId}"]`,
+                foodChooseContainer = $('#food-choose-container')
+            ;
+            //点击时添加一个foodchoose控件到对应区域
+            if (!foodChooseContainer.children(childClass).length) {
+                new FoodChoose(data).bindTotalInfo(this.#totalInfo).appendTo(foodChooseContainer);
+                this.#totalInfo.addItem(1);
             }
-            new FoodChoose(data).appendTo($('#food-choose'));
+            $(`${childClass} button[ope="1"]`).click();
         });
     }
 
@@ -434,6 +442,8 @@ class Food extends BaseControl {
  */
 class FoodChoose extends BaseControl {
     #data;
+    //食物总计区域的操作器
+    #totalInfo;
 
     constructor(data) {
         super();
@@ -441,11 +451,26 @@ class FoodChoose extends BaseControl {
         this.element = $(this.#getFoodSelectedTemplate(data));
     }
 
+    /**
+     * 绑定食物总计区域的操作器
+     * @param totalInfo
+     * @returns {FoodChoose}
+     */
+    bindTotalInfo(totalInfo){
+        this.#totalInfo = totalInfo;
+        return this;
+    }
+
     appendTo(parent) {
         super.appendTo(parent);
         this.#setEvent(this.#data);
     }
 
+    /**
+     * 获取被选择的食物模板
+     * @param data
+     * @returns {string}
+     */
     #getFoodSelectedTemplate(data) {
         return `
         <div class="layui-row layui-anim layui-anim-fadein food-choose" food-id="${data.foodId}">
@@ -456,7 +481,7 @@ class FoodChoose extends BaseControl {
             <div class="food-name-wrapper-choose layui-input-inline">
                 <div class="food-name-choose" title="${data.name}">${data.name}</div>
             </div>
-                <div amount anim="layui-anim-upbit" class="food-amount-choose layui-anim layui-anim-upbit">1</div>
+                <div amount anim="layui-anim-upbit" class="food-amount-choose layui-anim layui-anim-upbit">0</div>
                 <div class="food-operating">
                     <div class="food-price-choose" price="${data.price}">${data.price}</div>
                     <div class="food-operating-btn">
@@ -464,13 +489,13 @@ class FoodChoose extends BaseControl {
                             <i class="layui-icon">&#xe640;</i>
                         </button>
                         <div class="layui-btn-group">
-                            <button type="button" sub class="layui-btn layui-btn-primary layui-btn-xs">
+                            <button type="button" ope="-1" class="layui-btn layui-btn-primary layui-btn-xs">
                                 <i class="layui-icon">&#xe67e;</i>
                             </button>
                             <button style="color: #009E94" type="button" amount
-                                    class="layui-btn layui-btn-primary layui-btn-xs  layui-btn-disabled">1
+                                    class="layui-btn layui-btn-primary layui-btn-xs  layui-btn-disabled">0
                             </button>
-                            <button type="button" add class="layui-btn layui-btn-primary layui-btn-xs">
+                            <button type="button" ope="1" class="layui-btn layui-btn-primary layui-btn-xs">
                                 <i class="layui-icon">&#xe654;</i>
                             </button>
                         </div>
@@ -481,38 +506,95 @@ class FoodChoose extends BaseControl {
         `
     }
 
+    /**
+     * 设置被选择的食物模板内各个按钮的点击事件
+     * @param data
+     */
     #setEvent(data) {
+        //获取需要操作的元素
         let parentClass = `.food-choose[food-id="${data.foodId}"]`,
-            btnAdd = $(`${parentClass} button[add]`),
-            btnSub = $(`${parentClass} button[sub]`),
             btnAmount = $(`${parentClass} button[amount]`),
-            btnDelete = $(`${parentClass} button[delete]`),
             divAmount = $(`${parentClass} div[amount]`),
-            divPrice = $(`${parentClass} div[price]`);
-        btnDelete.click(()=>btnDelete.parents(parentClass).remove());
-        btnAdd.click(function () {
-            let curAmount = Number.parseInt(btnAmount.text()) + 1;
-            btnAmount.text(curAmount);
-            divAmount.text(curAmount);
-            divPrice.text(Number.parseFloat(divPrice.attr('price')) * curAmount)
+            divPrice = $(`${parentClass} div[price]`),
+            btnDelete = $(`${parentClass} button[delete]`)
+        ;
+
+        //删除按钮点击事件
+        btnDelete.click(e => {
+            $(e.currentTarget).parents(parentClass).remove();
+            this.#totalInfo.subItem(1);
+            this.#totalInfo.subPrice(divPrice.text());
+            this.#totalInfo.subAmount(divAmount.text());
         });
-        btnSub.click(function () {
-            let curAmount;
-            if ((curAmount = Number.parseInt(btnAmount.text())) === 1) {
-                return;
+        //添加、减去按钮点击事件
+        $(`${parentClass} button[ope]`).click(e => {
+            let th = $(e.currentTarget),
+                curAmount = Number.parseInt(btnAmount.text()),
+                num = Number.parseInt(th.attr('ope')),
+                price = Number.parseFloat(divPrice.attr('price')),
+                amount = curAmount + num
+            ;
+            this.#totalInfo.addAmount(num);
+            this.#totalInfo.addPrice((price * num));
+            btnAmount.text(amount);
+            divAmount.text(amount);
+            divPrice.text(price * amount);
+            //减去按钮点击到食物数量为0直接点击删除按钮
+            if (amount === 0){
+                btnDelete.click();
             }
-            curAmount--;
-            btnAmount.text(curAmount);
-            divAmount.text(curAmount);
-            divPrice.text(Number.parseFloat(divPrice.attr('price')) * curAmount)
         });
-        btnAdd.mousedown(() =>
+        //设置添加数量时的动画
+        $(`${parentClass} button[ope="1"]`).mousedown(() =>
             divAmount.removeClass(divAmount.attr('anim'))
         ).mouseup(() =>
             divAmount.addClass(divAmount.attr('anim'))
         );
-
     }
+}
+
+/**
+ * 食物总计区域操作器对象
+ */
+class TotalInfo {
+    #spanItem = $('#total-info .total-item');
+    #spanAmount = $('#total-info .total-amount');
+    #spanPrice = $('#total-info .total-price');
+
+    #toInt(param){
+        if (typeof param === 'string'){
+            return Number.parseInt(param);
+        }
+        return param
+    }
+    #toFloat(param){
+        if (typeof param === 'string'){
+            return Number.parseFloat(param);
+        }
+        return param
+    }
+
+    addItem(item){
+        this.#spanItem.text(this.#toInt(this.#spanItem.text()) + this.#toInt(item));
+    }
+    subItem(item){
+        this.#spanItem.text(this.#toInt(this.#spanItem.text()) - this.#toInt(item));
+    }
+
+    addAmount(amount){
+        this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) + this.#toInt(amount));
+    }
+    subAmount(amount){
+        this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) - this.#toInt(amount));
+    }
+
+    addPrice(price){
+        this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) + this.#toFloat(price));
+    }
+    subPrice(price){
+        this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) - this.#toFloat(price));
+    }
+
 }
 
 
