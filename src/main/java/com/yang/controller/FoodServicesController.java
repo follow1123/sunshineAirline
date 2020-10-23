@@ -1,6 +1,7 @@
 package com.yang.controller;
 
 import com.yang.service.impl.FoodServicesServiceImpl;
+import com.yang.service.impl.ReservationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,15 @@ import static com.yang.utils.JsonUtils.*;
 public class FoodServicesController {
 
     private FoodServicesServiceImpl foodServicesService;
+
+    private ReservationServiceImpl reservationService;
+
+    @Autowired
+    @Qualifier("reservationServiceImpl")
+    public void setReservationService(ReservationServiceImpl reservationService) {
+        this.reservationService = reservationService;
+    }
+
     @Autowired
     @Qualifier("foodServicesServiceImpl")
     public void setFoodServicesService(FoodServicesServiceImpl foodServicesService) {
@@ -32,5 +42,10 @@ public class FoodServicesController {
     @RequestMapping("/food")
     public String foodInfo(Integer id){
         return pack(()->foodServicesService.getFood(id));
+    }
+
+    @RequestMapping("/foodReservation")
+    public String reservationInfo(Integer reservationId){
+        return pack(()->reservationService.getFoodReservationOrder(reservationId));
     }
 }

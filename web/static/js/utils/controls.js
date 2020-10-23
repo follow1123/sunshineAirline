@@ -377,13 +377,23 @@ class Food extends BaseControl {
     #rootPath = './static/img/food/';
     #data;
     //食物总计区域的操作器
-    #totalInfo = new TotalInfo();
+    #totalInfo;
 
     constructor(data) {
         super();
         this.#data = data;
         data.img = this.#rootPath + data.img;
         this.element = $(this.#getFoodTemplate(data));
+    }
+
+    /**
+     * 绑定食物总计区域的操作器
+     * @param totalInfo
+     * @returns {FoodChoose}
+     */
+    bindTotalInfo(totalInfo) {
+        this.#totalInfo = totalInfo;
+        return this;
     }
 
     /**
@@ -429,7 +439,7 @@ class Food extends BaseControl {
             //点击时添加一个foodchoose控件到对应区域
             if (!foodChooseContainer.children(childClass).length) {
                 new FoodChoose(data).bindTotalInfo(this.#totalInfo).appendTo(foodChooseContainer);
-                this.#totalInfo.addItem(1);
+                this.#totalInfo.addItem(1, data.foodId);
             }
             $(`${childClass} button[ope="1"]`).click();
         });
@@ -456,7 +466,7 @@ class FoodChoose extends BaseControl {
      * @param totalInfo
      * @returns {FoodChoose}
      */
-    bindTotalInfo(totalInfo){
+    bindTotalInfo(totalInfo) {
         this.#totalInfo = totalInfo;
         return this;
     }
@@ -522,9 +532,9 @@ class FoodChoose extends BaseControl {
         //删除按钮点击事件
         btnDelete.click(e => {
             $(e.currentTarget).parents(parentClass).remove();
-            this.#totalInfo.subItem(1);
-            this.#totalInfo.subPrice(divPrice.text());
-            this.#totalInfo.subAmount(divAmount.text());
+            this.#totalInfo.subItem(1, data.foodId);
+            this.#totalInfo.subPrice(divPrice.text(), data.foodId);
+            this.#totalInfo.subAmount(divAmount.text(), data.foodId);
         });
         //添加、减去按钮点击事件
         $(`${parentClass} button[ope]`).click(e => {
@@ -534,13 +544,13 @@ class FoodChoose extends BaseControl {
                 price = Number.parseFloat(divPrice.attr('price')),
                 amount = curAmount + num
             ;
-            this.#totalInfo.addAmount(num);
-            this.#totalInfo.addPrice((price * num));
+            this.#totalInfo.addAmount(num, data.foodId);
+            this.#totalInfo.addPrice((price * num), data.foodId);
             btnAmount.text(amount);
             divAmount.text(amount);
             divPrice.text(price * amount);
             //减去按钮点击到食物数量为0直接点击删除按钮
-            if (amount === 0){
+            if (amount === 0) {
                 btnDelete.click();
             }
         });
@@ -560,42 +570,56 @@ class TotalInfo {
     #spanItem = $('#total-info .total-item');
     #spanAmount = $('#total-info .total-amount');
     #spanPrice = $('#total-info .total-price');
+    #foodOrder = {};
+    get foodOrder(){
+        return this.#foodOrder;
+    }
 
-    #toInt(param){
-        if (typeof param === 'string'){
+    #toInt(param) {
+        if (typeof param === 'string') {
             return Number.parseInt(param);
         }
         return param
     }
-    #toFloat(param){
-        if (typeof param === 'string'){
+
+    #toFloat(param) {
+        if (typeof param === 'string') {
             return Number.parseFloat(param);
         }
         return param
     }
 
-    addItem(item){
+    addItem(item, foodId) {
         this.#spanItem.text(this.#toInt(this.#spanItem.text()) + this.#toInt(item));
+        this.#foodOrder[`${foodId}`] = {foodId: foodId, amount: 0, price: 0};
     }
-    subItem(item){
+
+    subItem(item, foodId) {
         this.#spanItem.text(this.#toInt(this.#spanItem.text()) - this.#toInt(item));
+        delete this.#foodOrder[`${foodId}`];
     }
 
-    addAmount(amount){
+    addAmount(amount, foodId) {
         this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) + this.#toInt(amount));
-    }
-    subAmount(amount){
-        this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) - this.#toInt(amount));
+        this.#foodOrder[`${foodId}`].amount += 1;
     }
 
-    addPrice(price){
-        this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) + this.#toFloat(price));
+    subAmount(amount, foodId) {
+        this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) - this.#toInt(amount));
+        this.#foodOrder[`${foodId}`].amount -= 1;
     }
-    subPrice(price){
+
+    addPrice(price, foodId) {
+        this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) + this.#toFloat(price));
+        this.#foodOrder[`${foodId}`].price += this.#toFloat(price);
+    }
+
+    subPrice(price, foodId) {
         this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) - this.#toFloat(price));
+        this.#foodOrder[`${foodId}`].price -= this.#toFloat(price);
     }
 
 }
 
 
-export {Ticket, TicketDetail, Food, FoodChoose}
+export {Ticket, TicketDetail, Food, FoodChoose, TotalInfo}

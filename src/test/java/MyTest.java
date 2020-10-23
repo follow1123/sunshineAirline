@@ -1,5 +1,7 @@
 import com.yang.dao.FoodMapper;
+import com.yang.dao.ReservationMapper;
 import com.yang.dao.UnionMapper;
+import com.yang.pojo.Flightfoodreservation;
 import com.yang.vo.FlightInfo;
 import com.yang.pojo.Flightfood;
 import com.yang.vo.Ticket;
@@ -125,5 +127,22 @@ public class MyTest {
         List<Flightfood> passport = foodMapper.getFood(3);
         passport.forEach(System.out::println);
         System.out.println(passport.size());
+    }
+    @Test
+    public void test07(){
+        ReservationMapper foodMapper = context.getBean("reservationMapper", ReservationMapper.class);
+        List<Flightfoodreservation> foodReservationOrder = foodMapper.getFoodReservationOrder(null  );
+        foodReservationOrder.forEach(System.out::println);
+        System.out.println(foodReservationOrder.size());
+//        int i = foodMapper.setFoodReservation(new Flightfoodreservation() {
+//            {
+//                setReservationId(123);
+//                setReservationId(1);
+//                setReservationId(11);
+//            }
+//        });
+//        System.out.println(i);
+//        int i = foodMapper.deleteFoodReservation(11);
+//        System.out.println(i);
     }
 }

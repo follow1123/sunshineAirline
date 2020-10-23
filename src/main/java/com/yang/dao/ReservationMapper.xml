@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.dao.ReservationMapper">
+    <select id="getFoodReservationOrder" resultType="flightFoodReservation">
+        select *
+        from flightfoodreservation f
+        <where>
+            <if test="reservationId != null">
+                f.ReservationId = #{reservationId}
+            </if>
+        </where>
+    </select>
+    <insert id="setFoodReservation">
+        insert into flightfoodreservation value (#{reservationId},#{foodId}, #{amount});
+    </insert>
+    <delete id="deleteFoodReservation">
+        delete from flightfoodreservation
+        where ReservationId = #{reservationId}
+    </delete>
+</mapper>

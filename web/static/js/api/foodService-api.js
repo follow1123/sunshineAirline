@@ -14,5 +14,9 @@ export let foodServicesApi = {
         } else {
             post(pathName, event);
         }
+    },
+    getFoodReservation: (params, event)=>{
+        params.pathName = '/FS/foodReservation';
+        post(params, event);
     }
 };

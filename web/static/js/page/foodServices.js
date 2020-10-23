@@ -1,5 +1,6 @@
 import {foodServicesApi as fsApi} from "../api/foodService-api.js";
-import {Food, FoodChoose} from "../utils/controls.js";
+import {Food, FoodChoose, TotalInfo} from "../utils/controls.js";
+import {StorageUtils} from "../utils/utils.js";
 
 let loadFoodServicesPage = (form) => {
 
@@ -11,6 +12,9 @@ let loadFoodServicesPage = (form) => {
         //flightInfo 下拉框
         selFlightInfo = $('#flightInfo'),
         preIdTypeNum,
+        reservationId,
+        totalInfo = new TotalInfo(),
+        foodItems = StorageUtils.get('foodItems'),
         foodCols = [$('#food-col0'), $('#food-col1'), $('#food-col2')],
         foodSelected = $('#food-selected'),
         /**
@@ -32,8 +36,29 @@ let loadFoodServicesPage = (form) => {
                 selFlightInfo.append($(`<option value="${v.reservationId}">${v.flightNumber},${v.from}-${v.to},${v.date.split('.')[0]},${v.cabinType}</option>`));
             });
             form.render('select');
-        };
-        //idTypeNumber框失去焦点时的事件
+        },
+        /**
+         * 设置食物信息
+         * @param data
+         */
+        setFoodItems = data => {
+            $.each(data, (i, v) => {
+                new Food(v).bindTotalInfo(totalInfo).appendTo(foodCols[i % 3]);
+            });
+        }
+    ;
+    if (foodItems) {
+        setFoodItems(foodItems);
+    } else {
+        /**
+         * 获取食物信息
+         */
+        fsApi.getFood({}, (content, code) => {
+            StorageUtils.put('foodItems', content);
+            setFoodItems(content);
+        });
+    }
+    //idTypeNumber框失去焦点时的事件
     inpIdTypeNum.blur(() => {
         let param = {
             idType: radIdType,
@@ -63,13 +88,25 @@ let loadFoodServicesPage = (form) => {
         $('button[delete]').click();
     });
 
-    /**
-     * 获取食物信息
-     */
-    fsApi.getFood({}, (content, code) => {
-        $.each(content, (i, v) => {
-            new Food(v).appendTo(foodCols[i % 3]);
+    form.on('submit(load)', (data) => {
+        fsApi.getFoodReservation({reservationId: data.field.flight}, (content, code) => {
+            console.log(content);
+            console.log(code);
         });
+        return false;
+    });
+    //航班选择时获取航班的预订id号
+    form.on('select(flightReservation)', data => reservationId = data.value);
+    //订餐确认点击事件
+    form.on('submit(confirm)', () => {
+        let foodOrder = totalInfo.foodOrder,
+            finalOrder = []
+        ;
+        $.each(foodOrder, (k, v) => {
+            finalOrder.push(Object.assign({reservationId: reservationId}, v));
+        });
+        console.log(finalOrder);
+        return false;
     });
     form.render();
 };
