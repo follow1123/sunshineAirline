@@ -1,5 +1,5 @@
 import {foodServicesApi as fsApi} from "../api/foodService-api.js";
-import {Food, FoodChoose, TotalInfo} from "../utils/controls.js";
+import {Food, FoodChoose, TotalInfoOperator} from "../utils/controls.js";
 import {StorageUtils} from "../utils/utils.js";
 
 let loadFoodServicesPage = (form) => {
@@ -13,7 +13,7 @@ let loadFoodServicesPage = (form) => {
         selFlightInfo = $('#flightInfo'),
         preIdTypeNum,
         reservationId,
-        totalInfo = new TotalInfo(),
+        totalInfo = new TotalInfoOperator(),
         foodItems = StorageUtils.get('foodItems'),
         foodCols = [$('#food-col0'), $('#food-col1'), $('#food-col2')],
         foodSelected = $('#food-selected'),
@@ -43,7 +43,7 @@ let loadFoodServicesPage = (form) => {
          */
         setFoodItems = data => {
             $.each(data, (i, v) => {
-                new Food(v).bindTotalInfo(totalInfo).appendTo(foodCols[i % 3]);
+                new Food(v).bindInfoOperator(totalInfo).appendTo(foodCols[i % 3]);
             });
         }
     ;

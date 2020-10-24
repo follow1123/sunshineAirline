@@ -1,6 +1,8 @@
 import {antiShake} from "./utils.js";
 
-
+/**
+ * 基础控件定义控件通用的方法
+ */
 class BaseControl {
     element;
 
@@ -377,7 +379,7 @@ class Food extends BaseControl {
     #rootPath = './static/img/food/';
     #data;
     //食物总计区域的操作器
-    #totalInfo;
+    #infoOperator;
 
     constructor(data) {
         super();
@@ -389,10 +391,10 @@ class Food extends BaseControl {
     /**
      * 绑定食物总计区域的操作器
      * @param totalInfo
-     * @returns {FoodChoose}
+     * @returns {Food}
      */
-    bindTotalInfo(totalInfo) {
-        this.#totalInfo = totalInfo;
+    bindInfoOperator(totalInfo) {
+        this.#infoOperator = totalInfo;
         return this;
     }
 
@@ -436,15 +438,13 @@ class Food extends BaseControl {
             let childClass = `.food-choose[food-id="${data.foodId}"]`,
                 foodChooseContainer = $('#food-choose-container')
             ;
-            //点击时添加一个foodchoose控件到对应区域
+            //点击时添加一个foodChoose控件到对应区域
             if (!foodChooseContainer.children(childClass).length) {
-                new FoodChoose(data).bindTotalInfo(this.#totalInfo).appendTo(foodChooseContainer);
-                this.#totalInfo.addItem(1, data.foodId);
+                new FoodChoose(data).bindInfoOperator(this.#infoOperator).appendTo(foodChooseContainer);
             }
             $(`${childClass} button[ope="1"]`).click();
         });
     }
-
 }
 
 /**
@@ -453,7 +453,7 @@ class Food extends BaseControl {
 class FoodChoose extends BaseControl {
     #data;
     //食物总计区域的操作器
-    #totalInfo;
+    #infoOperator;
 
     constructor(data) {
         super();
@@ -466,8 +466,8 @@ class FoodChoose extends BaseControl {
      * @param totalInfo
      * @returns {FoodChoose}
      */
-    bindTotalInfo(totalInfo) {
-        this.#totalInfo = totalInfo;
+    bindInfoOperator(totalInfo) {
+        this.#infoOperator = totalInfo;
         return this;
     }
 
@@ -526,15 +526,13 @@ class FoodChoose extends BaseControl {
             btnAmount = $(`${parentClass} button[amount]`),
             divAmount = $(`${parentClass} div[amount]`),
             divPrice = $(`${parentClass} div[price]`),
-            btnDelete = $(`${parentClass} button[delete]`)
-        ;
+            btnDelete = $(`${parentClass} button[delete]`);
 
         //删除按钮点击事件
         btnDelete.click(e => {
             $(e.currentTarget).parents(parentClass).remove();
-            this.#totalInfo.subItem(1, data.foodId);
-            this.#totalInfo.subPrice(divPrice.text(), data.foodId);
-            this.#totalInfo.subAmount(divAmount.text(), data.foodId);
+            this.#infoOperator.removeItem(data.foodId);
+            console.log(this.#infoOperator.foodOrder);
         });
         //添加、减去按钮点击事件
         $(`${parentClass} button[ope]`).click(e => {
@@ -544,15 +542,14 @@ class FoodChoose extends BaseControl {
                 price = Number.parseFloat(divPrice.attr('price')),
                 amount = curAmount + num
             ;
-            this.#totalInfo.addAmount(num, data.foodId);
-            this.#totalInfo.addPrice((price * num), data.foodId);
+            if (amount < 1) {
+                return;
+            }
+            this.#infoOperator.addItem(data.foodId, num, (price * num));
             btnAmount.text(amount);
             divAmount.text(amount);
             divPrice.text(price * amount);
-            //减去按钮点击到食物数量为0直接点击删除按钮
-            if (amount === 0) {
-                btnDelete.click();
-            }
+            console.log(this.#infoOperator.foodOrder);
         });
         //设置添加数量时的动画
         $(`${parentClass} button[ope="1"]`).mousedown(() =>
@@ -566,12 +563,18 @@ class FoodChoose extends BaseControl {
 /**
  * 食物总计区域操作器对象
  */
-class TotalInfo {
+class TotalInfoOperator {
     #spanItem = $('#total-info .total-item');
     #spanAmount = $('#total-info .total-amount');
     #spanPrice = $('#total-info .total-price');
-    #foodOrder = {};
-    get foodOrder(){
+    #foodOrder;
+
+    constructor() {
+        this.#foodOrder = new Map();
+        this.foodOrder.set('total', {item: 0, amount: 0, price: 0});
+    }
+
+    get foodOrder() {
         return this.#foodOrder;
     }
 
@@ -589,37 +592,54 @@ class TotalInfo {
         return param
     }
 
-    addItem(item, foodId) {
-        this.#spanItem.text(this.#toInt(this.#spanItem.text()) + this.#toInt(item));
-        this.#foodOrder[`${foodId}`] = {foodId: foodId, amount: 0, price: 0};
+    /**
+     * 设置食物总计区域的值
+     * @param total
+     */
+    #setValue(total) {
+        this.#spanAmount.text(total.amount);
+        this.#spanPrice.text(total.price);
+        this.#spanItem.text(total.item);
     }
 
-    subItem(item, foodId) {
-        this.#spanItem.text(this.#toInt(this.#spanItem.text()) - this.#toInt(item));
-        delete this.#foodOrder[`${foodId}`];
+    /**
+     * 对食物订单里面的数据进行修改
+     * @param id
+     * @param amount
+     * @param price
+     */
+    addItem(id, amount, price) {
+        let food, total = this.#foodOrder.get('total');
+        amount = this.#toInt(amount);
+        price = this.#toFloat(price);
+        if ((food = this.#foodOrder.get(id))) {
+            food.amount += amount;
+            food.price += price;
+        } else {
+            this.#foodOrder.set(id, {foodId: id, amount: amount, price: price});
+            total.item += 1;
+        }
+        total.amount += amount;
+        total.price += price;
+        this.#setValue(total);
     }
 
-    addAmount(amount, foodId) {
-        this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) + this.#toInt(amount));
-        this.#foodOrder[`${foodId}`].amount += 1;
-    }
-
-    subAmount(amount, foodId) {
-        this.#spanAmount.text(this.#toInt(this.#spanAmount.text()) - this.#toInt(amount));
-        this.#foodOrder[`${foodId}`].amount -= 1;
-    }
-
-    addPrice(price, foodId) {
-        this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) + this.#toFloat(price));
-        this.#foodOrder[`${foodId}`].price += this.#toFloat(price);
-    }
-
-    subPrice(price, foodId) {
-        this.#spanPrice.text(this.#toFloat(this.#spanPrice.text()) - this.#toFloat(price));
-        this.#foodOrder[`${foodId}`].price -= this.#toFloat(price);
+    /**
+     * 移除一个已选择的食物
+     * @param id
+     */
+    removeItem(id) {
+        let food = this.#foodOrder.get(id)
+            , total = this.#foodOrder.get('total');
+        console.log(food);
+        total.amount -= food.amount;
+        total.price -= food.price;
+        total.item -= 1;
+        this.#setValue(total);
+        this.#foodOrder.delete(id);
     }
 
 }
 
 
-export {Ticket, TicketDetail, Food, FoodChoose, TotalInfo}
+export {Ticket, TicketDetail, Food, FoodChoose, TotalInfoOperator}

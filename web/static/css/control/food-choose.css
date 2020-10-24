@@ -34,7 +34,7 @@
 }
 
 .food-amount-choose:before {
-    content: '×';
+    content: 'x';
 }
 
 .food-price-choose {
