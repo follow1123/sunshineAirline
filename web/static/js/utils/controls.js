@@ -568,10 +568,15 @@ class TotalInfoOperator {
     #spanAmount = $('#total-info .total-amount');
     #spanPrice = $('#total-info .total-price');
     #foodOrder;
+    #total;
 
     constructor() {
-        this.#foodOrder = new Map();
-        this.foodOrder.set('total', {item: 0, amount: 0, price: 0});
+        this.#foodOrder = [];
+        this.#total = {item: 0, amount: 0, price: 0};
+    }
+
+    get total() {
+        return this.#total;
     }
 
     get foodOrder() {
@@ -594,12 +599,11 @@ class TotalInfoOperator {
 
     /**
      * 设置食物总计区域的值
-     * @param total
      */
-    #setValue(total) {
-        this.#spanAmount.text(total.amount);
-        this.#spanPrice.text(total.price);
-        this.#spanItem.text(total.item);
+    #setValue() {
+        this.#spanAmount.text(this.#total.amount);
+        this.#spanPrice.text(this.#total.price);
+        this.#spanItem.text(this.#total.item);
     }
 
     /**
@@ -609,19 +613,19 @@ class TotalInfoOperator {
      * @param price
      */
     addItem(id, amount, price) {
-        let food, total = this.#foodOrder.get('total');
+        let food;
         amount = this.#toInt(amount);
         price = this.#toFloat(price);
-        if ((food = this.#foodOrder.get(id))) {
+        if ((food = this.#foodOrder[this.#getIndexById(id)])) {
             food.amount += amount;
             food.price += price;
         } else {
-            this.#foodOrder.set(id, {foodId: id, amount: amount, price: price});
-            total.item += 1;
+            this.#foodOrder.push({foodId: id, amount: amount, price: price});
+            this.#total.item += 1;
         }
-        total.amount += amount;
-        total.price += price;
-        this.#setValue(total);
+        this.#total.amount += amount;
+        this.#total.price += price;
+        this.#setValue();
     }
 
     /**
@@ -629,16 +633,42 @@ class TotalInfoOperator {
      * @param id
      */
     removeItem(id) {
-        let food = this.#foodOrder.get(id)
-            , total = this.#foodOrder.get('total');
-        console.log(food);
-        total.amount -= food.amount;
-        total.price -= food.price;
-        total.item -= 1;
-        this.#setValue(total);
-        this.#foodOrder.delete(id);
+        let food = this.#foodOrder[this.#getIndexById(id)];
+        this.#total.amount -= food.amount;
+        this.#total.price -= food.price;
+        this.#total.item -= 1;
+        this.#setValue();
+        this.#deleteById(id);
     }
 
+    /**
+     * 根据食物id获取存储的对应下标
+     * @param id
+     */
+    #getIndexById(id) {
+        for (let i in this.#foodOrder){
+            if (this.#foodOrder[i].foodId === id) {
+                return i;
+                break;
+            }
+        }
+    }
+
+    /**
+     * 根据下标删除对应的值
+     * @param index
+     */
+    #deleteByIndex(index) {
+        this.#foodOrder.splice(index, 1);
+    }
+
+    /**
+     * 根据食物id删除对应的值
+     * @param id
+     */
+    #deleteById(id) {
+        this.#deleteByIndex(this.#getIndexById(id));
+    }
 }
 
 

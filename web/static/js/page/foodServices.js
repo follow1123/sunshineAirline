@@ -11,8 +11,10 @@ let loadFoodServicesPage = (form) => {
         inpIdTypeNum = $('#idTypeNumber'),
         //flightInfo 下拉框
         selFlightInfo = $('#flightInfo'),
+        btnEmpty = $('#empty'),
+        btnConfirm = $('#confirm'),
         preIdTypeNum,
-        reservationId,
+        curReservationId,
         totalInfo = new TotalInfoOperator(),
         foodItems = StorageUtils.get('foodItems'),
         foodCols = [$('#food-col0'), $('#food-col1'), $('#food-col2')],
@@ -84,8 +86,20 @@ let loadFoodServicesPage = (form) => {
         })
     });
     //清空按钮的点击事件，将选择的食物全部清空
-    $('#empty').click(function () {
+    btnEmpty.click(() => {
         $('button[delete]').click();
+    });
+
+    //确认按钮，提交预订的食物
+    btnConfirm.click(() => {
+        let foodOrder = totalInfo.foodOrder;
+        for (let i = 0; i < foodOrder.length;i++){
+            delete foodOrder[i].price;
+            foodOrder[i].reservationId = curReservationId;
+        }
+        $.each(foodOrder, (i, v)=>{
+           fsApi.setFoodOrder(v);
+        });
     });
 
     form.on('submit(load)', (data) => {
@@ -96,18 +110,8 @@ let loadFoodServicesPage = (form) => {
         return false;
     });
     //航班选择时获取航班的预订id号
-    form.on('select(flightReservation)', data => reservationId = data.value);
+    form.on('select(flightReservation)', data => curReservationId = data.value);
     //订餐确认点击事件
-    form.on('submit(confirm)', () => {
-        let foodOrder = totalInfo.foodOrder,
-            finalOrder = []
-        ;
-        $.each(foodOrder, (k, v) => {
-            finalOrder.push(Object.assign({reservationId: reservationId}, v));
-        });
-        console.log(finalOrder);
-        return false;
-    });
     form.render();
 };
 

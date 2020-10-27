@@ -1,5 +1,6 @@
 package com.yang.controller;
 
+import com.yang.pojo.Flightfoodreservation;
 import com.yang.service.impl.FoodServicesServiceImpl;
 import com.yang.service.impl.ReservationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,13 @@ public class FoodServicesController {
     @RequestMapping("/foodReservation")
     public String reservationInfo(Integer reservationId){
         return pack(()->reservationService.getFoodReservationOrder(reservationId));
+    }
+    @RequestMapping("/orderFood")
+    public String orderFood(Flightfoodreservation food){
+        if (food == null || food.getReservationId() == 0){
+            return pack(400,"");
+        }
+        int code = reservationService.setFoodReservation(food) < 0 ? 500 : 200;
+        return pack(code, "");
     }
 }

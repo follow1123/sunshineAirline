@@ -18,5 +18,10 @@ export let foodServicesApi = {
     getFoodReservation: (params, event)=>{
         params.pathName = '/FS/foodReservation';
         post(params, event);
+    },
+    setFoodOrder: (params, event)=>{
+        params.pathName = '/FS/orderFood';
+        console.log(params);
+        post(params, event);
     }
 };
