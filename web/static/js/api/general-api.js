@@ -4,7 +4,7 @@ if (!('projectPath' in window)) {
 /**
  * 封装post请求
  */
-let post = () => {
+let post = function () {
         let url, func;
         $.each(arguments, (i, v) => {
             if (typeof v === 'object') {

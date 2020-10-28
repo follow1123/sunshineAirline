@@ -47,6 +47,14 @@ let loadFoodServicesPage = (form) => {
             $.each(data, (i, v) => {
                 new Food(v).bindInfoOperator(totalInfo).appendTo(foodCols[i % 3]);
             });
+        },
+        /**
+         * 获取对应id的食物控件里面的购买按钮
+         * @param id
+         * @returns {*|jQuery.fn.init|jQuery|HTMLElement}
+         */
+        getBtnByFoodId = id => {
+            return $(`div[food-id="${id}"] .food-buy`);
         }
     ;
     if (foodItems) {
@@ -93,21 +101,37 @@ let loadFoodServicesPage = (form) => {
     //确认按钮，提交预订的食物
     btnConfirm.click(() => {
         let foodOrder = totalInfo.foodOrder;
-        for (let i = 0; i < foodOrder.length;i++){
+        for (let i = 0; i < foodOrder.length; i++) {
             delete foodOrder[i].price;
             foodOrder[i].reservationId = curReservationId;
         }
-        $.each(foodOrder, (i, v)=>{
-           fsApi.setFoodOrder(v);
+        $.each(foodOrder, (i, v) => {
+            fsApi.setFoodOrder(v);
         });
     });
 
+    //加载已预订的食物信息
     form.on('submit(load)', (data) => {
-        fsApi.getFoodReservation({reservationId: data.field.flight}, (content, code) => {
-            console.log(content);
-            console.log(code);
-        });
-        return false;
+        try {
+            fsApi.getFoodOrder({reservationId: curReservationId}, (data, code) => {
+                btnEmpty.click();
+                if (code !== 200) {
+                    layer.msg('You have no order, please choose food');
+                    return;
+                }
+                $.each(data, (i, v) => {
+                    let curFood = getBtnByFoodId(v.foodId);
+                    for (let i = 0; i < v.amount; i++) {
+                        curFood.click();
+                    }
+                });
+                layer.msg('Your order has been loaded, please continue to select');
+            });
+        } catch (e) {
+            console.log(e.message);
+        } finally {
+            return false;
+        }
     });
     //航班选择时获取航班的预订id号
     form.on('select(flightReservation)', data => curReservationId = data.value);

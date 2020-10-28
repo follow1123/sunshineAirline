@@ -22,7 +22,7 @@ public class PageController {
 
     @RequestMapping("/OfficeUser")
     public String searchFlight(){
-        return "page/officeUser";
+        return "sysPage/officeUser";
     }
 
 //    @RequestMapping("/SearchFlight")

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.yang.utils.JsonUtils.*;
+import static com.yang.utils.ResultUtil.*;
 
 /**
  * @auther YF

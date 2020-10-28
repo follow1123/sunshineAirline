@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
  * @create 2020-10-05-14:51
  * json工具对fastjson进行封装
  */
-public class JsonUtils {
+public class ResultUtil {
     /**
      * 将内容和code封装成固定的json格式
      * @param code
@@ -18,7 +18,7 @@ public class JsonUtils {
      * @return
      */
     public static String pack(int code, Object content){
-        return JSON.toJSONString(new JsonPackage(code, content));
+        return JSON.toJSONString(new Result(code, content));
     }
 
     /**
@@ -31,12 +31,13 @@ public class JsonUtils {
         Object result = null;
         try {
             result = event.call();
-        }catch (Exception e){
-            code = 500;
-        }finally {
-            if (result instanceof List && ((List)result).size() == 0){
+            System.out.println(result);
+            if ((result instanceof List && ((List)result).size() == 0) || result == null){
                 code = 404;
             }
+        }catch (Exception e){
+            System.out.println(e.getMessage());;
+            code = 500;
         }
         return pack(code, result);
     }
@@ -44,11 +45,11 @@ public class JsonUtils {
     /**
      * json固定格式
      */
-    private static class JsonPackage{
+    private static class Result {
         private int code;
         private Object content;
 
-        public JsonPackage(int code, Object content) {
+        public Result(int code, Object content) {
             this.code = code;
             this.content = content;
         }

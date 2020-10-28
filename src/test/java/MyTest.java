@@ -131,7 +131,7 @@ public class MyTest {
     @Test
     public void test07(){
         ReservationMapper foodMapper = context.getBean("reservationMapper", ReservationMapper.class);
-        List<Flightfoodreservation> foodReservationOrder = foodMapper.getFoodReservationOrder(null  );
+        List<Flightfoodreservation> foodReservationOrder = foodMapper.getFoodReservationOrder(3898  );
         foodReservationOrder.forEach(System.out::println);
         System.out.println(foodReservationOrder.size());
 //        int i = foodMapper.setFoodReservation(new Flightfoodreservation() {
@@ -144,5 +144,12 @@ public class MyTest {
 //        System.out.println(i);
 //        int i = foodMapper.deleteFoodReservation(11);
 //        System.out.println(i);
+    }
+    @Test
+    public void test08(){
+        ReservationMapper foodMapper = context.getBean("reservationMapper", ReservationMapper.class);
+        List<Flightfoodreservation> foodReservationOrder = foodMapper.getFoodReservationOrder(null  );
+        foodReservationOrder.forEach(System.out::println);
+        System.out.println(foodReservationOrder.size());
     }
 }

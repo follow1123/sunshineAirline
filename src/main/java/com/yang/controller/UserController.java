@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import static com.yang.utils.Constant.*;
-import static com.yang.utils.JsonUtils.*;
+import static com.yang.utils.ResultUtil.*;
 
 /**
  * @auther YF

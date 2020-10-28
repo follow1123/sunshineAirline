@@ -2,11 +2,11 @@ import {post} from "./general-api.js";
 
 
 export let foodServicesApi = {
-    getFightInfo: (params, event)=> {
+    getFightInfo: (params, event) => {
         params.pathName = '/FS/flightInfo';
         post(params, event);
     },
-    getFood: (params, event)=> {
+    getFood: (params, event) => {
         let pathName = '/FS/food';
         if (params) {
             params.pathName = pathName;
@@ -15,13 +15,12 @@ export let foodServicesApi = {
             post(pathName, event);
         }
     },
-    getFoodReservation: (params, event)=>{
-        params.pathName = '/FS/foodReservation';
+    setFoodOrder: (params, event) => {
+        params.pathName = '/FS/orderFood';
         post(params, event);
     },
-    setFoodOrder: (params, event)=>{
-        params.pathName = '/FS/orderFood';
-        console.log(params);
+    getFoodOrder: (params, event) => {
+        params.pathName = '/FS/orderById';
         post(params, event);
     }
 };
