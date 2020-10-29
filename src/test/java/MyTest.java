@@ -2,8 +2,9 @@ import com.yang.dao.FoodMapper;
 import com.yang.dao.ReservationMapper;
 import com.yang.dao.UnionMapper;
 import com.yang.pojo.Flightfoodreservation;
-import com.yang.vo.FlightInfo;
 import com.yang.pojo.Flightfood;
+import com.yang.service.impl.FlightStatusServiceImpl;
+import com.yang.vo.FlightStatusInfo;
 import com.yang.vo.Ticket;
 import com.yang.utils.PojoUtils;
 import org.junit.Test;
@@ -116,10 +117,15 @@ public class MyTest {
 
     @Test
     public void test05(){
-        UnionMapper unionMapper = context.getBean("unionMapper", UnionMapper.class);
-        List<FlightInfo> passport = unionMapper.getFlightInfo("Pasort", "346912888");
-        passport.forEach(System.out::println);
-        System.out.println(passport.size());
+//        UnionMapper unionMapper = context.getBean("unionMapper", UnionMapper.class);
+//
+//        List<FlightStatusInfo> flightStatusInfos = unionMapper.getFlightStatus("2020-09-01");
+////        List<FlightInfo> passport = unionMapper.getFlightInfo("Pasort", "346912888");
+//        flightStatusInfos.forEach(System.out::println);
+//        System.out.println(flightStatusInfos.size());
+
+        FlightStatusServiceImpl flightStatusService = new FlightStatusServiceImpl();
+        System.out.println(flightStatusService.getFlightStatus("2020-09-01"));
     }
     @Test
     public void test06(){

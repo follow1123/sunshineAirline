@@ -64,4 +64,20 @@
             </if>
         </where>
     </select>
+    <select id="getFlightStatus" resultType="flightStatusInfo">
+        select s.FlightNumber flightNumber,
+               concat(r.DepartureAirportIATA, '/', c1.CityName) `from`,
+               concat(r.ArrivalAirportIATA, '/', c2.CityName)   `to`,
+               DATE_FORMAT(concat(s.Date, ' ', s.Time), '%Y-%m-%d %H:%i:%S')                      scheduleStart,
+               DATE_FORMAT(date_add(concat(s.Date, ' ', s.Time), interval r.FlightTime MINUTE),'%Y-%m-%d %H:%i:%S') scheduleArrival,
+               DATE_FORMAT(f.ActualArrivalTime, '%Y-%m-%d %H:%i:%S')                              actualArrival,
+               s.Gate                                           gate,
+                timestampdiff(MINUTE, f.ActualArrivalTime ,date_add(concat(s.Date, ' ', s.Time), interval r.FlightTime MINUTE)) status
+        from schedule s
+             join route r on s.RouteId = r.RouteId
+             join city c1 on r.DepartureAirportIATA = c1.CityCode
+             join city c2 on r.ArrivalAirportIATA = c2.CityCode
+             join flightstatus f on s.ScheduleId = f.ScheduleId
+         where s.Date = #{depDate}
+    </select>
 </mapper>

@@ -14,7 +14,7 @@ public class Constant {
         {
             put("Search Flights", "/SearchFlight");
             put("Food Services", "/FoodServices");
-            put("Flight Status", "/FlightStatus");
+            put("Flight Status", "/FlightStatusInfo");
         }
     };
     public static final Map<String, String> ADMINISTRATOR_TITLES = new HashMap<String, String>() {

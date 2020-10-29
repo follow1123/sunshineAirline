@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="static/css/page/searchFlights.css">
     <link rel="stylesheet" href="static/css/common/common.css">
     <link rel="stylesheet" href="static/css/page/foodServices.css">
+    <link rel="stylesheet" href="static/css/page/flightStatusInfos.css">
     <script type="text/html" id="searchFlight">
         <div class="layui-row layui-anim layui-anim-upbit">
             <div class="layui-col-md1">&nbsp;</div>
@@ -139,13 +140,39 @@
             <div class="layui-col-md1">&nbsp;</div>
         </div>
     </script>
+    <script type="text/html" id="flightStatusInfos">
+        <div class="layui-row layui-anim layui-anim-upbit">
+            <div class="layui-col-md1">&nbsp;</div>
+            <div class="layui-col-md10">
+                <div class="status-options">
+                    <form class="layui-form">
+                        <div class="layui-input-inline">
+                            <input type="text" placeholder="Date" id="p3-datePicker" name="date" class="layui-input"
+                                   readonly>
+                        </div>
+                        <div class="layui-input-inline to-right">
+                            <input type="submit" lay-submit lay-filter="p3-search" id="p3-search"
+                                   class="layui-btn layui-btn-normal"
+                                   value="Search">
+                        </div>
+                    </form>
+                </div>
+                <div class="container">
+                    <table class="layui-table" lay-skin="line" id="statusInfo" lay-filter="statusInfo">
+                    </table>
+                </div>
+
+            </div>
+            <div class="layui-col-md1">&nbsp;</div>
+        </div>
+    </script>
 </head>
 <body>
 <div id="header">
     <ul class="layui-nav" lay-filter="head">
         <li class="layui-nav-item layui-this"><a page="searchFlight">Search Flight</a></li>
         <li class="layui-nav-item"><a page="foodServices">Food Services</a></li>
-        <li class="layui-nav-item"><a page="flightStatus">Flight Status</a></li>
+        <li class="layui-nav-item"><a page="flightStatusInfos">Flight Status</a></li>
         <li class="layui-nav-item to-right">
             <a href="javascript:;">Ad ad</a>
             <dl class="layui-nav-child"> <!-- 二级菜单 -->

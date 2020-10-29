@@ -1,5 +1,6 @@
 import {loadSearchFlightPage} from "./searchFlight.js";
 import {loadFoodServicesPage} from "./foodServices.js";
+import {loadFlightStatusPage} from "./flightStatus.js";
 import {WindowUtils, StorageUtils} from "../utils/utils.js";
 
 "use strict";
@@ -36,7 +37,8 @@ $(() => {
         //各个页面的模板
         pageTemplates = {
             searchFlight: $('#searchFlight').text(),
-            foodServices: $('#foodServices').text()
+            foodServices: $('#foodServices').text(),
+            flightStatus: $('#flightStatus').text()
         },
         //切换页面里面的模板元素
         switchPage = (page, event) => {
@@ -48,7 +50,7 @@ $(() => {
         }
     ;
     //使用layui的相应工具
-    layui.use(['element', 'laydate', 'form'], (ele, laydate, form) => {
+    layui.use(['element', 'laydate', 'form', 'table'], (ele, laydate, form, table) => {
         //切换的航班查询页面
         switchPage('searchFlight', () => loadSearchFlightPage(form, laydate));
         //导航栏切换事件
@@ -66,6 +68,9 @@ $(() => {
                 case'foodServices':
                     switchPage(page, () => loadFoodServicesPage(form));
                     break;
+                case 'flightStatus':
+                    switchPage(page, ()=>loadFlightStatusPage(form, table, laydate));
+                    break
             }
         });
 
