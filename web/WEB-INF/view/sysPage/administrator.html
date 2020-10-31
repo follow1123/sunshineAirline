@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sunshine Airline</title>
+    <link rel="stylesheet" href="static/lib/layui/css/layui.css">
+    <link rel="stylesheet" href="static/css/control/ticket.css">
+    <link rel="stylesheet" href="static/css/common/common.css">
+    <link rel="stylesheet" href="static/css/page/administrator/flightScheduleManagement.css">
+    <script type="text/html" id="flightScheduleManagement">
+        <div class="layui-row layui-anim layui-anim-upbit">
+            <div class="layui-col-md1">&nbsp;</div>
+            <div class="layui-col-md10">
+                <div class="flight-schedule-options">
+                    <form class="layui-form">
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn"  id="btnKey">
+                                <i class="layui-icon layui-icon-key" style="font-size: 10px"></i>
+                                <span key="Airport">City</span>
+                            </button>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="cFrom" id="p1-from">
+                                <option value="">From</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <div id="swap">
+                                <i class="layui-icon layui-icon-prev"></i>
+                                <i class="layui-icon layui-icon-next"></i>
+                            </div>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select name="cTo" id="p1-to">
+                                <option value="">To</option>
+
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" placeholder="Departure Date" id="p1-datePicker" name="date"
+                                   class="layui-input"
+                                   readonly>
+                        </div>
+                        <div class="layui-input-inline to-right">
+                            <input type="submit" lay-submit lay-filter="p1-search" id="p1-search"
+                                   class="layui-btn layui-btn-normal"
+                                   value="Search">
+                        </div>
+                    </form>
+                </div>
+                <div class="container">
+                    <table class="layui-table" id="p1-flightScheduleInfo" lay-filter="p1-flightScheduleInfo">
+                    </table>
+                </div>
+            </div>
+            <div class="layui-col-md1">&nbsp;</div>
+        </div>
+    </script>
+    <script type="text/html" id="ticketStatistics">ticketStatistics</script>
+    <script type="text/html" id="userManagement">userManagement</script>
+    <script type="text/html" id="loginRecord">loginRecord</script>
+</head>
+<body>
+
+<div id="header">
+    <ul class="layui-nav" lay-filter="head">
+        <li class="layui-nav-item layui-this"><a page="flightScheduleManagement">Flight Schedule Management</a></li>
+        <li class="layui-nav-item"><a page="ticketStatistics">Ticket Statistics</a></li>
+        <li class="layui-nav-item"><a page="userManagement">User Management</a></li>
+        <li class="layui-nav-item"><a page="loginRecord">Login Record</a></li>
+        <li class="layui-nav-item to-right">
+            <a href="javascript:;">Administrator</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <dd><a>Home</a></dd>
+                <dd><a>Logout</a></dd>
+            </dl>
+        </li>
+    </ul>
+</div>
+<div id="content-body">
+
+</div>
+<script src="static/lib/jquery-3.4.1.js"></script>
+<script src="static/lib/layui/layui.all.js"></script>
+<script type="module" src="static/js/page/administrator/administratorPage.js"></script>
+</body>
+</html>

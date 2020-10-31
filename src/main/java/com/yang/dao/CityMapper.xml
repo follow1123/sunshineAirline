@@ -7,4 +7,8 @@
         select CityName
         from city order by CityName;
     </select>
+    <select id="getIATACode" resultType="java.lang.String">
+        select IATACode
+        from airport order by IATACode;
+    </select>
 </mapper>

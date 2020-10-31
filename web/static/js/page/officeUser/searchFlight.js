@@ -1,15 +1,19 @@
-import {searchFlightApi as sfApi} from "../api/searchFilght-api.js";
-import {Ticket, TicketDetail} from "../utils/controls.js";
+import {searchFlightApi as sfApi} from "../../api/officeUser/searchFilght-api.js";
+import {Ticket, TicketDetail} from "../../utils/controls.js";
 import {
     StorageUtils,
     WindowUtils,
     antiShake as shake
-} from "../utils/utils.js";
+} from "../../utils/utils.js";
+import {LayuiUtils} from "../../utils/layuiUtils.js";
 
 "use strict";
 let loadSearchFlightPage = (form, layDate) => {
-        //cityName储存到本地的key标识
-        let cityNameKey = 'cityName',
+    console.log('search flight 页面加载');
+    let
+            fu = LayuiUtils.getFormUtil(form),
+            //cityName储存到本地的key标识
+            cityNameKey = 'cityName',
             //cityName值
             cityNames,
             btnSearch = $('#search'),
@@ -63,6 +67,20 @@ let loadSearchFlightPage = (form, layDate) => {
                     $(v).prop('disabled', disabled);
                 });
                 form.render('radio');
+            },
+            //验证参数
+            paramVer = (data) => {
+                //判断为空
+                if ('' === data.from && '' === data.to) {
+                    layer.msg('please select a city!');
+                    return true;
+                }
+                //判断城市名重复
+                if (data.from === data.to) {
+                    layer.msg('duplicate city name!');
+                    return true;
+                }
+                return false;
             }
         ;
 
@@ -101,74 +119,55 @@ let loadSearchFlightPage = (form, layDate) => {
         ticketDetail.bindCabinType(form, $('input[spread="1"]'));
 
         //使用layui的form工具拦截表单对应lay-filter id的submit按钮
-        form.on('submit(search)', data => {
-            //获取表单类的各个input框的数据
-            let field = data.field;
-            try {
-                //将所要执行的事件添加防抖
-                shake(() => {
-                    //判断为空
-                    if ('' === field.from && '' === field.to) {
-                        layer.msg('please select a city!');
-                        return;
-                    }
-                    //判断城市名重复
-                    if (field.from === field.to) {
-                        layer.msg('duplicate city name!');
-                        return;
-                    }
-                    //日期为空则默认查询当前的日期
-                    if ('' === field.date) {
-                        datePicker.val(field.date = new Date().format('yyyy-MM-dd'));
-                    }
-                    //后台查询对应信息
-                    sfApi.searchTicket(field, (content, code) => {
-                        //清空tickets显示区域的所有信息
-                        clearPage();
-                        if (404 === code) {
-                            layer.msg('No ticket for this voyage！');
-                            return;
-                        }
-                        if (500 === code) {
-                            layer.msg('Server Exception!');
-                            return;
-                        }
-                        //重置ticketDetail显示区域的数据
-                        ticketDetail.reset();
-                        //设置cabinType radio为不可选状态
-                        radioDisabled(true);
-                        //遍历查询到的数据并创建ticket对象添加到ticket显示区域
-                        for (let flightType in content) {
-                            for (let tic of content[flightType]) {
-                                //创建Ticket对象并设置ticket的点击事件
-                                new Ticket(flightType, tic, (ticket, data) => {
-                                    //设置cabinType radio为可选状态
-                                    radioDisabled(false);
-                                    if (preTicket) {
-                                        //将之前选择的ticket设置为未选中状态
-                                        preTicket.unselected();
-                                    }
-                                    //设置当前ticket为选中状态
-                                    ticket.selected();
-                                    preTicket = ticket;
-                                }, ticketDetail).appendTo(ticketContainer);
-                            }
-                        }
-                    })
-                });
-            } catch (e) {
-                console.log(e);
-            } finally {
-                pageRecord.searchFlightRecord.searchOptions = field;
-                //始终阻止表单跳转
-                return false;
+        fu.onSubmit('search', data => {
+            if (paramVer(data.field)){
+                return;
             }
-        });
+            //日期为空则默认查询当前的日期
+            if ('' === data.field.date) {
+                datePicker.val(data.field.date = new Date().format('yyyy-MM-dd'));
+            }
+            //后台查询对应信息
+            sfApi.searchTicket(data.field, (content, code) => {
+                //清空tickets显示区域的所有信息
+                clearPage();
+                if (404 === code) {
+                    layer.msg('No ticket for this voyage！');
+                    return;
+                }
+                if (500 === code) {
+                    layer.msg('Server Exception!');
+                    return;
+                }
+                //重置ticketDetail显示区域的数据
+                ticketDetail.reset();
+                //设置cabinType radio为不可选状态
+                radioDisabled(true);
+                //遍历查询到的数据并创建ticket对象添加到ticket显示区域
+                for (let flightType in content) {
+                    for (let tic of content[flightType]) {
+                        //创建Ticket对象并设置ticket的点击事件
+                        new Ticket(flightType, tic, (ticket, data) => {
+                            //设置cabinType radio为可选状态
+                            radioDisabled(false);
+                            if (preTicket) {
+                                //将之前选择的ticket设置为未选中状态
+                                preTicket.unselected();
+                            }
+                            //设置当前ticket为选中状态
+                            ticket.selected();
+                            preTicket = ticket;
+                        }, ticketDetail).appendTo(ticketContainer);
+                    }
+                }
+            });
+            pageRecord.searchFlightRecord.searchOptions = data.field;
+        }, true);
 
         //初始化当前页面记录的对象
         if (!(pageRecord.searchFlightRecord = StorageUtils.get('searchFlight'))) {
             pageRecord.searchFlightRecord = {};
-        }else {
+        } else {
             selFrom.val(pageRecord.searchFlightRecord.searchOptions.from);
             selTo.val(pageRecord.searchFlightRecord.searchOptions.to);
             datePicker.val(pageRecord.searchFlightRecord.searchOptions.date);

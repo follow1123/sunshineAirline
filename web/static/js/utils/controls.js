@@ -532,7 +532,6 @@ class FoodChoose extends BaseControl {
         btnDelete.click(e => {
             $(e.currentTarget).parents(parentClass).remove();
             this.#infoOperator.removeItem(data.foodId);
-            console.log(this.#infoOperator.foodOrder);
         });
         //添加、减去按钮点击事件
         $(`${parentClass} button[ope]`).click(e => {
@@ -549,7 +548,6 @@ class FoodChoose extends BaseControl {
             btnAmount.text(amount);
             divAmount.text(amount);
             divPrice.text(price * amount);
-            console.log(this.#infoOperator.foodOrder);
         });
         //设置添加数量时的动画
         $(`${parentClass} button[ope="1"]`).mousedown(() =>

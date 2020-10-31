@@ -1,11 +1,13 @@
 package com.yang.dao;
 
 import com.yang.vo.FlightInfo;
+import com.yang.vo.FlightScheduleInfo;
 import com.yang.vo.FlightStatusInfo;
 import com.yang.vo.Ticket;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @auther YF
@@ -22,4 +24,6 @@ public interface UnionMapper {
                                    @Param("idTypeNumber") String idTypeNumber);
 
     List<FlightStatusInfo> getFlightStatus(@Param("depDate") String depDate);
+
+    List<FlightScheduleInfo> getFlightSchedule(Map<String, Object> map);
 }

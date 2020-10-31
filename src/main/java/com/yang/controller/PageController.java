@@ -1,13 +1,8 @@
 package com.yang.controller;
 
-import com.yang.pojo.City;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * @auther YF
@@ -21,8 +16,12 @@ public class PageController {
     }
 
     @RequestMapping("/OfficeUser")
-    public String searchFlight(){
+    public String officeUser(){
         return "sysPage/officeUser";
+    }
+    @RequestMapping("/Administrator")
+    public String administrator(){
+        return "sysPage/administrator";
     }
 
 //    @RequestMapping("/SearchFlight")

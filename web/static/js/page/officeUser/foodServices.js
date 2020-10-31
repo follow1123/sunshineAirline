@@ -1,10 +1,12 @@
-import {foodServicesApi as fsApi} from "../api/foodService-api.js";
-import {Food, FoodChoose, TotalInfoOperator} from "../utils/controls.js";
-import {StorageUtils} from "../utils/utils.js";
+import {foodServicesApi as fsApi} from "../../api/officeUser/foodService-api.js";
+import {Food, FoodChoose, TotalInfoOperator} from "../../utils/controls.js";
+import {StorageUtils} from "../../utils/utils.js";
+import {LayuiUtils} from "../../utils/layuiUtils.js";
 
 let loadFoodServicesPage = (form) => {
-
+    console.log('food services 页面加载');
     let
+        fu = LayuiUtils.getFormUtil(form),
         //idType 选择radio
         radIdType = $('input[name="idType"]'),
         //idTypeNumber 输入框
@@ -110,29 +112,25 @@ let loadFoodServicesPage = (form) => {
         });
     });
 
+
     //加载已预订的食物信息
-    form.on('submit(load)', (data) => {
-        try {
-            fsApi.getFoodOrder({reservationId: curReservationId}, (data, code) => {
-                btnEmpty.click();
-                if (code !== 200) {
-                    layer.msg('You have no order, please choose food');
-                    return;
+
+    fu.onSubmit('load', data=>{
+        fsApi.getFoodOrder({reservationId: curReservationId}, (data, code) => {
+            btnEmpty.click();
+            if (code !== 200) {
+                layer.msg('You have no order, please choose food');
+                return;
+            }
+            $.each(data, (i, v) => {
+                let curFood = getBtnByFoodId(v.foodId);
+                for (let i = 0; i < v.amount; i++) {
+                    curFood.click();
                 }
-                $.each(data, (i, v) => {
-                    let curFood = getBtnByFoodId(v.foodId);
-                    for (let i = 0; i < v.amount; i++) {
-                        curFood.click();
-                    }
-                });
-                layer.msg('Your order has been loaded, please continue to select');
             });
-        } catch (e) {
-            console.log(e.message);
-        } finally {
-            return false;
-        }
-    });
+            layer.msg('Your order has been loaded, please continue to select');
+        });
+    },true);
     //航班选择时获取航班的预订id号
     form.on('select(flightReservation)', data => curReservationId = data.value);
     //订餐确认点击事件

@@ -1,7 +1,7 @@
 import {loadSearchFlightPage} from "./searchFlight.js";
 import {loadFoodServicesPage} from "./foodServices.js";
 import {loadFlightStatusPage} from "./flightStatus.js";
-import {WindowUtils, StorageUtils} from "../utils/utils.js";
+import {WindowUtils, StorageUtils} from "../../utils/utils.js";
 
 "use strict";
 
@@ -40,19 +40,34 @@ $(() => {
             foodServices: $('#foodServices').text(),
             flightStatus: $('#flightStatus').text()
         },
-        //切换页面里面的模板元素
-        switchPage = (page, event) => {
-            contentBody.html(pageTemplates[page]);
-            if (event) event();
-        },
-        savePageRecord = ()=>{
-            StorageUtils.put(curPage, pageRecord[curPage+'Record']);
+        /**
+         * 保存页面的缓存信息
+         */
+        savePageRecord = () => {
+            StorageUtils.put(curPage, pageRecord[curPage + 'Record']);
         }
     ;
     //使用layui的相应工具
     layui.use(['element', 'laydate', 'form', 'table'], (ele, laydate, form, table) => {
-        //切换的航班查询页面
-        switchPage('searchFlight', () => loadSearchFlightPage(form, laydate));
+        //定义对应页面id执行的事件
+        let pageEvent = {
+            loadStaticPage:function(page){
+                contentBody.html(pageTemplates[page]);
+            },
+            searchFlight:function(page){
+                this.loadStaticPage(page);
+                loadSearchFlightPage(form, laydate);
+            },
+            foodServices:function(page){
+                this.loadStaticPage(page);
+                loadFoodServicesPage(form);
+            },
+            flightStatus: function (page){
+                this.loadStaticPage(page);
+                loadFlightStatusPage(form, table, laydate);
+            }
+        };
+        pageEvent.searchFlight(curPage);
         //导航栏切换事件
         ele.on('nav(head)', data => {
             savePageRecord();
@@ -61,22 +76,12 @@ $(() => {
             if (curPage === page) return;
             curPage = page;
             //根据当前导航栏的模板id显示对应页面，并执行对应页面的初始化事件
-            switch (page) {
-                case'searchFlight':
-                    switchPage(page, () => loadSearchFlightPage(form, laydate));
-                    break;
-                case'foodServices':
-                    switchPage(page, () => loadFoodServicesPage(form));
-                    break;
-                case 'flightStatus':
-                    switchPage(page, ()=>loadFlightStatusPage(form, table, laydate));
-                    break
-            }
+            pageEvent[page](page);
         });
 
     });
-    WindowUtils.addUnloadEvent(()=>{
-       StorageUtils.clear();
+    WindowUtils.addUnloadEvent(() => {
+        StorageUtils.clear();
     });
     //注册窗口关闭事件
     WindowUtils.registerUnload();

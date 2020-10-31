@@ -1,4 +1,4 @@
-import {post} from "./general-api.js";
+import {post} from "../../utils/apiUtil.js";
 
 export let searchFlightApi =  {
     searchTicket: function (params, event) {

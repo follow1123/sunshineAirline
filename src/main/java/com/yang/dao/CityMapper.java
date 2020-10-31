@@ -8,4 +8,5 @@ import java.util.List;
  */
 public interface CityMapper {
     List<String> getCityNames();
+    List<String> getIATACode();
 }

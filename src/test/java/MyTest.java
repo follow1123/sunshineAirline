@@ -4,6 +4,7 @@ import com.yang.dao.UnionMapper;
 import com.yang.pojo.Flightfoodreservation;
 import com.yang.pojo.Flightfood;
 import com.yang.service.impl.FlightStatusServiceImpl;
+import com.yang.vo.FlightScheduleInfo;
 import com.yang.vo.FlightStatusInfo;
 import com.yang.vo.Ticket;
 import com.yang.utils.PojoUtils;
@@ -157,5 +158,18 @@ public class MyTest {
         List<Flightfoodreservation> foodReservationOrder = foodMapper.getFoodReservationOrder(null  );
         foodReservationOrder.forEach(System.out::println);
         System.out.println(foodReservationOrder.size());
+    }
+    @Test
+    public void test09(){
+        UnionMapper unionMapper = context.getBean("unionMapper", UnionMapper.class);
+        Map<String, Object> stringStringMap = new HashMap<>();
+//        stringStringMap.put("cForm", "Beijing");
+//        stringStringMap.put("cTo", "Hong Kong");
+        stringStringMap.put("aForm", "PEK");
+        stringStringMap.put("aTo", "HKG");
+        stringStringMap.put("date", "2020-09-03");
+        List<FlightScheduleInfo> flightSchedule = unionMapper.getFlightSchedule(stringStringMap);
+        flightSchedule.forEach(System.out::println);
+        System.out.println(flightSchedule.size());
     }
 }

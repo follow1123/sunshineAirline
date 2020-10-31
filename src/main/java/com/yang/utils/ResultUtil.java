@@ -31,7 +31,6 @@ public class ResultUtil {
         Object result = null;
         try {
             result = event.call();
-            System.out.println(result);
             if ((result instanceof List && ((List)result).size() == 0) || result == null){
                 code = 404;
             }

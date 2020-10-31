@@ -21,6 +21,10 @@
     <bean id="flightStatusServiceImpl" class="com.yang.service.impl.FlightStatusServiceImpl">
         <property name="unionMapper" ref="unionMapper"/>
     </bean>
+    <bean class="com.yang.service.impl.FlightScheduleManagementServiceImpl" id="flightScheduleManagementServiceImpl">
+        <property name="cityMapper" ref="cityMapper"/>
+        <property name="unionMapper" ref="unionMapper"/>
+    </bean>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
