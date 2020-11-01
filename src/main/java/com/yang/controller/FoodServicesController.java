@@ -1,6 +1,7 @@
 package com.yang.controller;
 
 import com.yang.pojo.Flightfoodreservation;
+import com.yang.service.FoodServicesService;
 import com.yang.service.impl.FoodServicesServiceImpl;
 import com.yang.service.impl.ReservationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,26 +19,20 @@ import static com.yang.utils.ResultUtil.*;
 @RequestMapping("/FS")
 public class FoodServicesController {
 
-    private FoodServicesServiceImpl foodServicesService;
+    private FoodServicesService foodServicesService;
 
     private ReservationServiceImpl reservationService;
 
     @Autowired
-    @Qualifier("reservationServiceImpl")
-    public void setReservationService(ReservationServiceImpl reservationService) {
-        this.reservationService = reservationService;
-    }
-
-    @Autowired
-    @Qualifier("foodServicesServiceImpl")
-    public void setFoodServicesService(FoodServicesServiceImpl foodServicesService) {
+    public FoodServicesController(FoodServicesService foodServicesService, ReservationServiceImpl reservationService) {
         this.foodServicesService = foodServicesService;
+        this.reservationService = reservationService;
     }
 
     @RequestMapping("/flightInfo")
     public String flightInfo(String idType, String idTypeNumber) {
         if (idType == null || idTypeNumber == null) {
-            return pack(404, "");
+            return packBadRequest();
         }
         System.out.println("进入flightInfo");
         return pack(() -> foodServicesService.getFlightInfo(idType, idTypeNumber));
@@ -51,7 +46,7 @@ public class FoodServicesController {
     @RequestMapping("/orderFood")
     public String orderFood(Flightfoodreservation food) {
         if (food == null || food.getReservationId() == 0) {
-            return pack(400, "");
+            return packBadRequest();
         }
         int code = reservationService.setFoodReservation(food) < 0 ? 500 : 200;
         return pack(code, "");

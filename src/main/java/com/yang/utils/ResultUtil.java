@@ -22,6 +22,14 @@ public class ResultUtil {
     }
 
     /**
+     * 返表示请求语法错误
+     * @return
+     */
+    public static String packBadRequest(){
+        return pack(400, "Bad Request");
+    }
+
+    /**
      * 根据事件自动判断code生成固定的json格式
      * @param event
      * @return

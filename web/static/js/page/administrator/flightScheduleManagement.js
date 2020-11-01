@@ -12,8 +12,11 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
         inpDate = $('#p1-datePicker'),
         btnKey = $('#btnKey'),
         btnSearch = $('#p1-search'),
+        aDetail,
+        btnCOC,
         cityNames,
         IATACode,
+        preTR,
         /**
          * 页面恢复
          * @param value
@@ -56,11 +59,13 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
                     if (code === 200) {
                         setSelectValue(data);
                         StorageUtils.put('cityName', data);
+                        cityNames = data;
                     }
                 });
                 fsmApi.getIATACode((data, code) => {
                     if (code === 200) {
                         StorageUtils.put('IATACode', data);
+                        IATACode = data;
                     }
                 });
             }
@@ -104,12 +109,46 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
             {field: 'economyPrice', title: 'Economy Price', unresize: true, align: 'center'},
             {field: 'flightNumber', title: 'Flight  Number', unresize: true, align: 'center'},
             {field: 'gate', title: 'Gate', unresize: true, align: 'center'},
-            {field: 'status', title: 'Status', unresize: true, align: 'center'},
+            {field: 'status', title: 'Status', unresize: true, align: 'center',},
+            {
+                title: 'Detail',
+                unresize: true,
+                align: 'center',
+                templet: d => `<a class="layui-table-link" detail sch="${d.scheduleId}">Detail</a>`
+            }
         ]],
         skin: 'line',
         title: 'Flight Status',
         height: 530,
-        toolbar: true,
+        toolbar: `<div><button type="button" id="coc" schId class="layui-btn layui-btn-sm layui-btn-disabled">Change Status</button></div>`,
+        done: () => {
+            btnCOC = $('#coc').click(function () {
+                //表格初始化完成执行的操作
+                fsmApi.setStatus({
+                        scheduleId: $(this).attr('schId'),
+                        status: `${$(this).text()}ed`
+                    },
+                    (data, code) => {
+                        if (code === 200) {
+                            layer.msg('Successfully modified!');
+                            btnSearch.click();
+                        } else {
+                            layer.msg('modified fail!');
+                        }
+
+                    }
+                )
+            });
+            $('a[detail]').click(function () {
+                layer.open({
+                    type:1,
+                    maxmin:true,
+                    content:`
+                    <div style="width:500px;height:500px;background-color:red"></div>
+                    `
+                })
+            });
+        },
         defaultToolbar: ['filter', 'print', 'exports'],
         page: true,
     });
@@ -120,10 +159,20 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
         selTo.val(temp);
         form.render('select');
     });
+    //表格的每行点击事件
+    table.on('row(p1-flightScheduleInfo)', obj => {
+        btnCOC.removeClass('layui-btn-disabled');
+        btnCOC.text(obj.data.status === 'Confirmed' ? 'Cancel' : 'Confirm');
+        btnCOC.attr('schId', obj.data.scheduleId);
+        if (preTR) {
+            preTR.css('background-color', 'white');
+        }
+        preTR = $(obj.tr).css('background-color', '#e2e2e2');
+    });
     //搜索按钮点击事件
     fu.onSubmit('p1-search', data => {
         fsmApi.getFlightSchedule(data.field, (data, code) => {
-            table.reload('p1-flightScheduleInfo', {data: data})
+            table.reload('p1-flightScheduleInfo', {data: data});
         });
         pageRecord.flightScheduleManagementRecord.searchOptions = {
             from: data.field[selFrom.prop('name')],

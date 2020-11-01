@@ -13,6 +13,9 @@ public interface FlightScheduleManagementService {
 
     List<String> getIATACode();
     List<String> getCityNames();
-
     List<FlightScheduleInfo> getFlightSchedule(Map<String, Object> map);
+
+    int setStatus(Integer scheduleId, String status);
+
+    List<Map<Integer, List<String>>> getAllSeatById(Integer schedule);
 }

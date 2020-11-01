@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.dao.ScheduleMapper">
+    <update id="setStatus">
+        update schedule
+        set Status = #{status}
+        where ScheduleId = #{scheduleId};
+    </update>
+    <resultMap id="seat" type="map">
+        <result property="key" column="rowNum"/>
+        <collection property="value" javaType="java.util.ArrayList" ofType="java.lang.String">
+            <result column="colName"/>
+        </collection>
+    </resultMap>
+    <select id="getAllSeatsById" resultMap="seat">
+        select s2.RowNumber rowNum, s2.ColumnName colName
+        from schedule s
+                 join aircraft a on s.AircraftId = a.AircraftId
+                 join seatlayout s2 on a.AircraftId = s2.AircraftId
+        where s.ScheduleId = #{scheduleId}
+    </select>
+</mapper>

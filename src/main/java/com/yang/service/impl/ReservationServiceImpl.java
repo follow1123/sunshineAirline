@@ -3,6 +3,8 @@ package com.yang.service.impl;
 import com.yang.dao.ReservationMapper;
 import com.yang.pojo.Flightfoodreservation;
 import com.yang.service.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -10,11 +12,11 @@ import java.util.List;
  * @auther YF
  * @create 2020-10-23-21:32
  */
+@Service
 public class ReservationServiceImpl implements ReservationService {
-
     private ReservationMapper reservationMapper;
-
-    public void setReservationMapper(ReservationMapper reservationMapper) {
+    @Autowired
+    public ReservationServiceImpl(ReservationMapper reservationMapper) {
         this.reservationMapper = reservationMapper;
     }
 

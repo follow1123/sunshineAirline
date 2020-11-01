@@ -1,9 +1,13 @@
 package com.yang.service.impl;
 
 import com.yang.dao.CityMapper;
+import com.yang.dao.ScheduleMapper;
 import com.yang.dao.UnionMapper;
 import com.yang.service.FlightScheduleManagementService;
 import com.yang.vo.FlightScheduleInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -12,18 +16,19 @@ import java.util.Map;
  * @auther YF
  * @create 2020-10-31-16:58
  */
+@Service
 public class FlightScheduleManagementServiceImpl implements FlightScheduleManagementService {
-
     private CityMapper cityMapper;
 
     private UnionMapper unionMapper;
 
-    public void setUnionMapper(UnionMapper unionMapper) {
-        this.unionMapper = unionMapper;
-    }
+    private ScheduleMapper scheduleMapper;
 
-    public void setCityMapper(CityMapper cityMapper) {
+    @Autowired
+    public FlightScheduleManagementServiceImpl(CityMapper cityMapper, UnionMapper unionMapper, ScheduleMapper scheduleMapper) {
         this.cityMapper = cityMapper;
+        this.unionMapper = unionMapper;
+        this.scheduleMapper = scheduleMapper;
     }
 
     @Override
@@ -39,5 +44,15 @@ public class FlightScheduleManagementServiceImpl implements FlightScheduleManage
     @Override
     public List<FlightScheduleInfo> getFlightSchedule(Map<String, Object> map) {
         return unionMapper.getFlightSchedule(map);
+    }
+
+    @Override
+    public int setStatus(Integer scheduleId, String status) {
+        return scheduleMapper.setStatus(scheduleId, status);
+    }
+
+    @Override
+    public List<Map<Integer, List<String>>> getAllSeatById(Integer schedule) {
+        return scheduleMapper.getAllSeatsById(schedule);
     }
 }

@@ -7,6 +7,8 @@ import java.util.List;
  * @create 2020-09-01-19:56
  */
 public interface CityMapper {
+    
     List<String> getCityNames();
+
     List<String> getIATACode();
 }

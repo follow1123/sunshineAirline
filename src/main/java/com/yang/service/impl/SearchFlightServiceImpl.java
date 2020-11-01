@@ -5,6 +5,8 @@ import com.yang.dao.UnionMapper;
 import com.yang.service.SearchFlightService;
 import com.yang.vo.Ticket;
 import com.yang.vo.TransitTicket;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,19 +17,15 @@ import java.util.stream.Collectors;
  * @auther YF
  * @create 2020-08-31-21:02
  */
+@Service
 public class SearchFlightServiceImpl implements SearchFlightService {
 
     private UnionMapper unionMapper;
-
     private CityMapper cityMapper;
 
-
-    public void setCityMapper(CityMapper cityMapper) {
-        this.cityMapper = cityMapper;
-    }
-
-    public void setUnionMapper(UnionMapper unionMapper) {
+    public SearchFlightServiceImpl(UnionMapper unionMapper, CityMapper cityMapper) {
         this.unionMapper = unionMapper;
+        this.cityMapper = cityMapper;
     }
 
     @Override

@@ -24,8 +24,7 @@ public class SearchFlightController {
     private SearchFlightServiceImpl searchFlightService;
 
     @Autowired
-    @Qualifier("searchFlightServiceImpl")
-    public void setSearchFlightService(SearchFlightServiceImpl searchFlightService) {
+    public SearchFlightController(SearchFlightServiceImpl searchFlightService) {
         this.searchFlightService = searchFlightService;
     }
 

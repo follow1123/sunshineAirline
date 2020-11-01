@@ -10,5 +10,9 @@ export let fsmApi = {
     getFlightSchedule : (params, event)=>{
         params.pathName = 'FSM/flightSchedule';
         post(params, event);
+    },
+    setStatus: (params, event)=>{
+        params.pathName = 'FSM/setStatus';
+        post(params, event);
     }
 };

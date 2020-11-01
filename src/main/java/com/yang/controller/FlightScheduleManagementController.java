@@ -35,6 +35,7 @@ public class FlightScheduleManagementController {
     public String IATACode() {
         return pack(flightScheduleManagementService::getIATACode);
     }
+
     @RequestMapping("/flightSchedule")
     public String flightSchedule(String cFrom, String cTo, String aFrom, String aTo, String date) {
         HashMap<String, Object> params = new HashMap<String, Object>() {{
@@ -45,6 +46,22 @@ public class FlightScheduleManagementController {
             put("date", date);
         }};
 
-        return pack(()->flightScheduleManagementService.getFlightSchedule(params));
+        return pack(() -> flightScheduleManagementService.getFlightSchedule(params));
+    }
+
+    @RequestMapping("setStatus")
+    public String setStatus(Integer scheduleId, String status) {
+        if (null == scheduleId || status == null) {
+            return packBadRequest();
+        }
+        return pack(() -> flightScheduleManagementService.setStatus(scheduleId, status));
+    }
+
+    @RequestMapping("allSeat")
+    public String allSeat(Integer scheduleId) {
+        if (null == scheduleId) {
+            return packBadRequest();
+        }
+        return pack(() -> flightScheduleManagementService.getAllSeatById(scheduleId));
     }
 }

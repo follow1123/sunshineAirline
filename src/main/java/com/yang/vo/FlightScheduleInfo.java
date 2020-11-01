@@ -1,3 +1,4 @@
+
 package com.yang.vo;
 
 /**
@@ -14,33 +15,7 @@ public class FlightScheduleInfo {
     private String flightNumber;
     private String gate;
     private String status;
-
-    @Override
-    public String toString() {
-        return "FlightScheduleInfo{" +
-                "date='" + date + '\'' +
-                ", time='" + time + '\'' +
-                ", from='" + from + '\'' +
-                ", to='" + to + '\'' +
-                ", aircraft='" + aircraft + '\'' +
-                ", economyPrice=" + economyPrice +
-                ", flightNumber='" + flightNumber + '\'' +
-                ", gate='" + gate + '\'' +
-                ", status='" + status + '\'' +
-                '}';
-    }
-
-    public FlightScheduleInfo(String date, String time, String from, String to, String aircraft, Double economyPrice, String flightNumber, String gate, String status) {
-        this.date = date;
-        this.time = time;
-        this.from = from;
-        this.to = to;
-        this.aircraft = aircraft;
-        this.economyPrice = economyPrice;
-        this.flightNumber = flightNumber;
-        this.gate = gate;
-        this.status = status;
-    }
+    private int scheduleId;
 
     public String getDate() {
         return date;
@@ -112,5 +87,26 @@ public class FlightScheduleInfo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public int getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(int scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    public FlightScheduleInfo(String date, String time, String from, String to, String aircraft, Double economyPrice, String flightNumber, String gate, String status, int scheduleId) {
+        this.date = date;
+        this.time = time;
+        this.from = from;
+        this.to = to;
+        this.aircraft = aircraft;
+        this.economyPrice = economyPrice;
+        this.flightNumber = flightNumber;
+        this.gate = gate;
+        this.status = status;
+        this.scheduleId = scheduleId;
     }
 }

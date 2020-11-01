@@ -23,9 +23,4 @@ public class PageController {
     public String administrator(){
         return "sysPage/administrator";
     }
-
-//    @RequestMapping("/SearchFlight")
-//    public String sf(){
-//        return "officeUser/searchFlights";
-//    }
 }

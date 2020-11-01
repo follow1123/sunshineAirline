@@ -24,12 +24,12 @@ import static com.yang.utils.ResultUtil.*;
 public class UserController {
 
     public UserServiceImpl userServiceImpl;
-
     @Autowired
-    @Qualifier("userServiceImpl")
-    public void setUserService(UserServiceImpl userServiceImpl) {
+    public UserController(UserServiceImpl userServiceImpl) {
         this.userServiceImpl = userServiceImpl;
     }
+
+
     @ResponseBody
     @RequestMapping("/login")
     public String login(String email, String password, String auto, HttpSession session, HttpServletResponse resp) {

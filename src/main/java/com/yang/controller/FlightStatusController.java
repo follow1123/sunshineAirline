@@ -16,12 +16,11 @@ import static com.yang.utils.ResultUtil.*;
 public class FlightStatusController {
 
     private FlightStatusService flightStatusService;
-
     @Autowired
-    @Qualifier("flightStatusServiceImpl")
-    public void setFlightStatusService(FlightStatusService flightStatusService) {
+    public FlightStatusController(FlightStatusService flightStatusService) {
         this.flightStatusService = flightStatusService;
     }
+
     @RequestMapping("/flightStatus")
     public String getFlightStatus(String date){
         if (null == date) {

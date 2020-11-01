@@ -82,38 +82,39 @@
     </select>
 
     <select id="getFlightSchedule" resultType="flightScheduleInfo" parameterType="map">
-        select s.Date                                               date,
-               date_format(concat(s.Date, ' ', s.Time), '%H:%i:%S') time,
-               concat(r.DepartureAirportIATA, '/', c1.CityName)     `from`,
-               concat(r.ArrivalAirportIATA, '/', c2.CityName)       `to`,
-                ai.Name                                               aircraft,
-               s.EconomyPrice                                       economyPrice,
-               s.FlightNumber                                       flightNumber,
-               s.Gate                                               gate,
-               s.Status                                             status
+        select s.Date date,
+        date_format(concat(s.Date, ' ', s.Time), '%H:%i:%S') time,
+        concat(r.DepartureAirportIATA, '/', c1.CityName) `from`,
+        concat(r.ArrivalAirportIATA, '/', c2.CityName) `to`,
+        ai.Name aircraft,
+        s.EconomyPrice economyPrice,
+        s.FlightNumber flightNumber,
+        s.Gate gate,
+        s.Status status,
+        s.ScheduleId scheduleId
         from schedule s
-             join aircraft ai on s.AircraftId = ai.AircraftId
-             join route r on s.RouteId = r.RouteId
-             join city c1 on r.DepartureAirportIATA = c1.CityCode
-             join city c2 on r.ArrivalAirportIATA = c2.CityCode
-            join airport a1 on c1.CityCode = a1.CityCode
-            join airport a2 on c2.CityCode = a2.CityCode
-         <where>
-             <if test="cFrom != null">
+        join aircraft ai on s.AircraftId = ai.AircraftId
+        join route r on s.RouteId = r.RouteId
+        join city c1 on r.DepartureAirportIATA = c1.CityCode
+        join city c2 on r.ArrivalAirportIATA = c2.CityCode
+        join airport a1 on c1.CityCode = a1.CityCode
+        join airport a2 on c2.CityCode = a2.CityCode
+        <where>
+            <if test="cFrom != null">
                 c1.CityName = #{cFrom}
-             </if>
-             <if test="cTo != null">
-                 and c2.CityName = #{cTo}
-             </if>
-             <if test="aFrom != null">
-                 and a1.IATACode = #{aFrom}
-             </if>
-             <if test="aTo != null">
-                 and a2.IATACode = #{aTo}
-             </if>
-             <if test="date != null">
-                 and s.Date = #{date}
-             </if>
-         </where>
+            </if>
+            <if test="cTo != null">
+                and c2.CityName = #{cTo}
+            </if>
+            <if test="aFrom != null">
+                and a1.IATACode = #{aFrom}
+            </if>
+            <if test="aTo != null">
+                and a2.IATACode = #{aTo}
+            </if>
+            <if test="date != null">
+                and s.Date = #{date}
+            </if>
+        </where>
     </select>
 </mapper>
