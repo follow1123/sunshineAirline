@@ -117,4 +117,42 @@
             </if>
         </where>
     </select>
+
+    <resultMap id="allSeats" type="map">
+        <result property="cabinTypeName" javaType="string" column="cabinTypeName"/>
+        <collection property="seat" javaType="list" ofType="string">
+            <result column="tableName"/>
+        </collection>
+    </resultMap>
+    <resultMap id="seat" type="java.util.ArrayList">
+        <association property="" javaType="map" >
+            <result column="cabinTypeName" javaType="string"/>
+            <collection property="" javaType="list" ofType="string">
+                <result column="tableName"/>
+            </collection>
+        </association>
+    </resultMap>
+
+    <select id="getSeats" resultMap="allSeats">
+        select CabinTypeName cabinTypeName, concat(RowNumber, ColumnName) tableName
+        from schedule
+                 join aircraft a on schedule.AircraftId = a.AircraftId
+                 join seatlayout s on a.AircraftId = s.AircraftId
+                 join cabintype c on s.CabinTypeId = c.CabinTypeId
+        where ScheduleId = #{id}
+        <if test="sold != null">
+            and s.Id
+            <if test="sold">
+                in
+            </if>
+            <if test="!sold">
+                not in
+            </if>
+             (
+            select fl.SeatLayoutId
+            from flightreservation fl
+            where fl.ScheduleId = #{id}
+            )
+        </if>
+    </select>
 </mapper>

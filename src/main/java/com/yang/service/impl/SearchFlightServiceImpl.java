@@ -7,6 +7,7 @@ import com.yang.vo.Ticket;
 import com.yang.vo.TransitTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class SearchFlightServiceImpl implements SearchFlightService {
     private UnionMapper unionMapper;
     private CityMapper cityMapper;
 
+    @Autowired
     public SearchFlightServiceImpl(UnionMapper unionMapper, CityMapper cityMapper) {
         this.unionMapper = unionMapper;
         this.cityMapper = cityMapper;
@@ -45,25 +47,29 @@ public class SearchFlightServiceImpl implements SearchFlightService {
 
     /**
      * 搜索单程票
+     *
      * @param from
      * @param to
      * @param date
      * @return
      */
-    public List<Ticket> searchOneWayTickets(String from, String to, String date){
+    @Transactional(rollbackFor = Exception.class)
+    public List<Ticket> searchOneWayTickets(String from, String to, String date) {
         List<Ticket> metaTicket = search(from, to, date);
-        if (metaTicket == null || metaTicket.size() == 0 || (from == null && to == null)){
+        if (metaTicket == null || metaTicket.size() == 0 || (from == null && to == null)) {
             return new ArrayList<>();
         }
         List<Ticket> finalListTicket = new ArrayList<>();
         if (from == null) {
             List<List<Ticket>> groupByFrom = splitBy(metaTicket, Ticket::getFrom);
-           addFinalTickets(finalListTicket, groupByFrom, date);
+            addFinalTickets(finalListTicket, groupByFrom, date);
         } else if (to == null) {
             List<List<Ticket>> groupByTo = splitBy(metaTicket, Ticket::getTo);
             addFinalTickets(finalListTicket, groupByTo, date);
         } else {
-            addFinalTickets(finalListTicket, new ArrayList<List<Ticket>>(){{ add(metaTicket); }}, date);
+            addFinalTickets(finalListTicket, new ArrayList<List<Ticket>>() {{
+                add(metaTicket);
+            }}, date);
         }
         //减去已经被购买的票
         for (Ticket ticket : finalListTicket) {
@@ -80,18 +86,20 @@ public class SearchFlightServiceImpl implements SearchFlightService {
 
     /**
      * 搜索中转票
+     *
      * @param from
      * @param to
      * @param date
      * @return
      */
-    public List<TransitTicket> searchTransitTickets(String from, String to, String date){
+    @Transactional(rollbackFor = Exception.class)
+    public List<TransitTicket> searchTransitTickets(String from, String to, String date) {
         List<Ticket> fromTickets = searchOneWayTickets(from, null, date);
         List<Ticket> toTickets = searchOneWayTickets(null, to, date);
         List<TransitTicket> transitTickets = new ArrayList<>();
         for (Ticket fromTicket : fromTickets) {
             for (Ticket toTicket : toTickets) {
-                if (fromTicket.getTo().equals(toTicket.getFrom())){
+                if (fromTicket.getTo().equals(toTicket.getFrom())) {
                     transitTickets.add(new TransitTicket(fromTicket, toTicket));
                     break;
                 }
@@ -102,6 +110,7 @@ public class SearchFlightServiceImpl implements SearchFlightService {
 
     /**
      * 根据日期进行分组
+     *
      * @param finalTickets
      * @param ticketGroupByCityName
      * @param date
@@ -118,10 +127,11 @@ public class SearchFlightServiceImpl implements SearchFlightService {
 
     /**
      * 将已分好组的票计算好后添加到最终的票里面
+     *
      * @param finalTickets
      * @param ticketGroup
      */
-    private void addGroupedTickets(List<Ticket> finalTickets, List<List<Ticket>> ticketGroup){
+    private void addGroupedTickets(List<Ticket> finalTickets, List<List<Ticket>> ticketGroup) {
         for (List<Ticket> ticketList : ticketGroup) {
             finalTickets.add(countTicket(ticketList));
         }
@@ -129,6 +139,7 @@ public class SearchFlightServiceImpl implements SearchFlightService {
 
     /**
      * 根据对象的某个字段进行分组
+     *
      * @param tickets
      * @param fun
      * @return
@@ -139,6 +150,7 @@ public class SearchFlightServiceImpl implements SearchFlightService {
 
     /**
      * 计算所有票中各个机票类型的个数
+     *
      * @param tickets
      * @return
      */

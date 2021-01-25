@@ -1,6 +1,7 @@
 package com.yang.service;
 
 import com.yang.vo.Ticket;
+import com.yang.vo.TransitTicket;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface SearchFlightService {
     List<String> getCityName();
 
     List<Integer> getBookedSeats(String date, int scheduleId);
-
+    List<TransitTicket> searchTransitTickets(String from, String to, String date);
+    List<Ticket> searchOneWayTickets(String from, String to, String date);
 
 }

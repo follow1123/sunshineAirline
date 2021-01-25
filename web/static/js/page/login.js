@@ -1,5 +1,5 @@
 import {loginApi} from "../api/login-api.js";
-import {LayuiUtils} from "../utils/layuiUtils";
+import {LayuiUtils} from "../utils/layuiUtils.js";
 
 $(function () {
     layui.use('form', form => {

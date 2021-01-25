@@ -19,11 +19,14 @@ public interface UnionMapper {
                             @Param("date") String date);
 
     List<Integer> getBookedSeats(@Param("date") String date,
-                                         @Param("scheduleId") int scheduleId);
+                                 @Param("scheduleId") int scheduleId);
+
     List<FlightInfo> getFlightInfo(@Param("idType") String idType,
                                    @Param("idTypeNumber") String idTypeNumber);
 
     List<FlightStatusInfo> getFlightStatus(@Param("depDate") String depDate);
 
     List<FlightScheduleInfo> getFlightSchedule(Map<String, Object> map);
+
+    List<Map<String, Object>> getSeats(@Param("id") Integer id, @Param("sold") Boolean sold);
 }

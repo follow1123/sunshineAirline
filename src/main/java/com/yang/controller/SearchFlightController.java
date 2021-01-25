@@ -1,5 +1,6 @@
 package com.yang.controller;
 
+import com.yang.service.SearchFlightService;
 import com.yang.vo.Ticket;
 import com.yang.vo.TransitTicket;
 import com.yang.service.impl.SearchFlightServiceImpl;
@@ -21,10 +22,10 @@ import static com.yang.utils.ResultUtil.*;
 @RestController
 @RequestMapping("/SF")
 public class SearchFlightController {
-    private SearchFlightServiceImpl searchFlightService;
+    private SearchFlightService searchFlightService;
 
     @Autowired
-    public SearchFlightController(SearchFlightServiceImpl searchFlightService) {
+    public SearchFlightController(SearchFlightService searchFlightService) {
         this.searchFlightService = searchFlightService;
     }
 

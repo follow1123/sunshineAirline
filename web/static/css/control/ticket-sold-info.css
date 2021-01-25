@@ -1,0 +1,59 @@
+.seat-wrapper::-webkit-scrollbar {
+    height: 6px; /*滚动条高度*/
+}
+
+.seat-wrapper::-webkit-scrollbar-thumb {
+    border-radius: 4px; /*滚动条的圆角*/
+    background-color: #B0C4DE; /* 滚动条的背景颜色*/
+}
+
+.seat {
+    text-align: center;
+    margin: 5px;
+    width: 40px;
+    height: 25px;
+    border-radius: 5px;
+    background-color: #00FA9A;
+    line-height: 25px;
+}
+
+.seat-bigger {
+    text-align: center;
+    margin: 5px;
+    width: 44px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: #00FA9A;
+    line-height: 40px;
+}
+
+.seat-wrapper {
+    background-color: #F5F5F5;
+    border-radius: 8px;
+    margin: 5px;
+    padding: 5px;
+    overflow-x: auto;
+}
+
+.seat-area {
+    height: 45%;
+    width: fit-content;
+    word-break: keep-all;
+    white-space: nowrap;
+}
+
+.schedule-info {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.ticket-sold-info {
+    width: 95%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.flight-img-info {
+    width: 100%;
+    height: 300px;
+}

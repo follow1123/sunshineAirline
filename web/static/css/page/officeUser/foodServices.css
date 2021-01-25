@@ -21,7 +21,7 @@
 }
 .total-item, .total-amount, .total-price{
     margin-right: 20px;
-    font-size: 20px;
+	font-size: 20px;
     font-weight: bolder;
 }
 .total-item:before{

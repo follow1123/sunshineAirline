@@ -13,6 +13,10 @@ class BaseControl {
     appendTo(parent) {
         this.element.appendTo(parent);
     }
+
+    getTemplate() {
+        return this.element.prop('outerHTML');
+    }
 }
 
 /**
@@ -644,7 +648,7 @@ class TotalInfoOperator {
      * @param id
      */
     #getIndexById(id) {
-        for (let i in this.#foodOrder){
+        for (let i in this.#foodOrder) {
             if (this.#foodOrder[i].foodId === id) {
                 return i;
                 break;
@@ -669,5 +673,140 @@ class TotalInfoOperator {
     }
 }
 
+class TicketSalesDetail extends BaseControl {
+    #seats;
+    #scheduleInfo;
+    #seatTemplateEle = $(`<div class="layui-row" style="margin-top: 20px">
+        <div class="layui-col-md2">
+            <div class="seat-wrapper" First>
+                <div top class="seat-area"></div>
+                <div style="height: 10%">&emsp;</div>
+                <div bottom class="seat-area"></div>
+            </div>
+        </div>
+        <div class="layui-col-md5">
+            <div class="seat-wrapper" Business>
+                <div top class="seat-area"></div>
+                <div style="height: 10%">&emsp;</div>
+                <div bottom class="seat-area"></div>
+            </div>
+        </div>
+        <div class="layui-col-md5">
+            <div class="seat-wrapper" Economy>
+                <div top class="seat-area"></div>
+                <div style="height: 10%">&emsp;</div>
+                <div bottom class="seat-area"></div>
+            </div>
+        </div>
+    </div>`);
 
-export {Ticket, TicketDetail, Food, FoodChoose, TotalInfoOperator}
+
+    constructor(seats, scheduleInfo) {
+        super();
+        this.#seats = seats;
+        this.#scheduleInfo = scheduleInfo;
+    }
+
+    #getScheduleInfo() {
+        if (this.#scheduleInfo) {
+            return `${this.#scheduleInfo.from} to ${this.#scheduleInfo.to}, ${this.#scheduleInfo.date}, ${this.#scheduleInfo.aircraftName}`
+        }
+        return 'No Schedule '
+    }
+
+    #getColumn(arr) {
+        let reg = /[1-9]+/g, col = Number.parseInt(reg.exec(arr[arr.length - 1])[0]);
+        reg.lastIndex = 0;
+        return col - (Number.parseInt(reg.exec(arr[0])[0]) - 1);
+
+    }
+
+    #calcSoldSeat() {
+        let allSeat = this.#seats.allSeats;
+        let soldSeat = this.#seats.soldSeats;
+        for (let i = 0; i < allSeat.length; i++) {
+            for (let j = 0; j < allSeat[i].seat.length; j++) {
+                if (soldSeat[i]) {
+                    for (let k = 0; k < soldSeat[i].seat.length; k++) {
+                        if (allSeat[i].seat[j] === soldSeat[i].seat[k]) {
+                            allSeat[i].seat[j] += '-';
+                        }
+                    }
+                }
+            }
+        }
+        return allSeat;
+    }
+
+    #appendSeat(topWr, botWr, seatData, type) {
+        let column = this.#getColumn(seatData),
+            row = seatData.length / column;
+        for (let i = 0, index = 0; i < column; i++) {
+            let colElementTop = $('<div style="display: inline-block"></div>');
+            let colElementBot = $('<div style="display: inline-block"></div>');
+            for (let j = 0; j < row; j++) {
+                if (j % row < row / 2) {
+                    colElementTop.append(
+                        $(`<div class="${type ? 'seat-bigger' : 'seat'}" ${seatData[index].endsWith('-') ? 'style="background-color:yellow"' : ''}>${seatData[index++].replace('-', '')}</div>`));
+                } else {
+                    colElementBot.append(
+                        $(`<div class="${type ? 'seat-bigger' : 'seat'}" ${seatData[index].endsWith('-') ? 'style="background-color:yellow"' : ''}>${seatData[index++].replace('-', '')}</div>`));
+                }
+            }
+            topWr.append(colElementTop);
+            botWr.append(colElementBot);
+        }
+    }
+
+    #getSeatTemplate() {
+        let allSeat = this.#calcSoldSeat();
+        for (let i = 0; i < allSeat.length; i++) {
+            let curWrapper = this.#seatTemplateEle.find(`div[${allSeat[i].cabinTypeName}]`),
+                allSeatCount = allSeat[i].seat.length,
+                soldSeatCount = this.#seats.soldSeats[i] ?
+                    this.#seats.soldSeats[i].seat.length : 0;
+
+            curWrapper.before($(this.#getCabinTypeInfo(allSeat[i].cabinTypeName, allSeatCount, soldSeatCount)));
+            this.#appendSeat(
+                curWrapper.find('div[top]'),
+                curWrapper.find('div[bottom]'),
+                allSeat[i].seat, "First" === allSeat[i].cabinTypeName);
+        }
+        return this.#seatTemplateEle.prop('outerHTML');
+    }
+
+    getTemplate() {
+        this.element = $(`
+            <div class="ticket-sold-info">
+            <div class="schedule-info">${this.#getScheduleInfo()}</div>
+            <img class="flight-img-info" src="${projectPath}/static/img/aircraft/${this.#scheduleInfo.aircraftName}.jpg" alt="Airbus 319.jpg">
+            ${this.#getSeatTemplate()}
+        </div>
+        `);
+        return super.getTemplate();
+    }
+
+    #percentage(num, total) {
+        if (num === 0 || total === 0) {
+            return 0;
+        }
+        return (Math.round(num / total * 10000) / 100.00);// 小数点后两位百分比
+    }
+
+    #getCabinTypeInfo(cabinType, total, sold) {
+        return `
+            <div style="padding: 5px">
+                <b style="color: ${'First' === cabinType ? 'red' : ('Business' === cabinType ? 'blue' : 'green')}">${cabinType} Class</b>
+                <div class="layui-inline to-right">
+                    <b title="Sold Tickets">${sold}</b>
+                    <b>/</b>
+                    <b title="Total Tickets">${total}</b>
+                    <b title="sell rate">${this.#percentage(sold, total)}%</b>
+                </div>
+            </div>
+        `;
+    }
+}
+
+
+export {Ticket, TicketDetail, Food, FoodChoose, TotalInfoOperator, TicketSalesDetail}

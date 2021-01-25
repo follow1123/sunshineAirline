@@ -8,17 +8,23 @@
         set Status = #{status}
         where ScheduleId = #{scheduleId};
     </update>
-    <resultMap id="seat" type="map">
-        <result property="key" column="rowNum"/>
-        <collection property="value" javaType="java.util.ArrayList" ofType="java.lang.String">
-            <result column="colName"/>
-        </collection>
+
+    <resultMap id="scheduleInfo" type="map">
+        <result property="from" column="from"/>
+        <result property="to" column="to"/>
+        <result property="date" column="date"/>
+        <result property="aircraftName" column="aircraftName"/>
+        <result property="from" column="from"/>
     </resultMap>
-    <select id="getAllSeatsById" resultMap="seat">
-        select s2.RowNumber rowNum, s2.ColumnName colName
-        from schedule s
-                 join aircraft a on s.AircraftId = a.AircraftId
-                 join seatlayout s2 on a.AircraftId = s2.AircraftId
-        where s.ScheduleId = #{scheduleId}
+
+    <select id="getScheduleInfoById" resultMap="scheduleInfo">
+        select r.DepartureAirportIATA `from`,
+               r.ArrivalAirportIATA `to`,
+               DATE_FORMAT(concat(sch.Date, ' ', sch.Time), '%Y-%m-%d %H:%i:%S') `date`,
+               a.Name `aircraftName`
+        from schedule sch
+                 join route r on sch.RouteId = r.RouteId
+                 join aircraft a on sch.AircraftId = a.AircraftId
+        where sch.ScheduleId = #{id};
     </select>
 </mapper>

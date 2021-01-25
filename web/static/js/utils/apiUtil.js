@@ -25,6 +25,48 @@ let post = function () {
         }
     },
     /**
+     * 异步发送请求
+     */
+    asyncPost = function () {
+        $.post(getParam(arguments));
+    },
+
+    /**
+     * 同步的发送请求并返回结果
+     * @returns {*}
+     */
+    syncPost = function () {
+        let data;
+        let param = getParam(arguments, false);
+        param.success = function (d) {
+            data = d;
+        };
+        $.post(param);
+        return data;
+    },
+
+    /**
+     * 获取ajax请求的参数对象
+     * @param args
+     * @param async
+     * @returns {{}}
+     */
+    getParam = function (args, async = true) {
+        let obj = {};
+        $.each(args, (i, v) => {
+            if (typeof v === 'object') {
+                obj.data = v;
+            } else if (typeof v === 'function') {
+                obj.success = v;
+            } else if (typeof v === 'string') {
+                obj.url = projectPath + v;
+            }
+        });
+        obj.dataType = 'json';
+        obj.async = async;
+        return obj;
+    },
+    /**
      * 将参数对象里面非法的值清空里面
      * @param obj
      */
@@ -54,4 +96,4 @@ let post = function () {
     }
 ;
 
-export {post, emptyToNull, paramParser};
+export {post, emptyToNull, paramParser, asyncPost, syncPost};

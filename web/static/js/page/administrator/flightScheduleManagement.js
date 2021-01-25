@@ -1,6 +1,7 @@
 import {fsmApi} from "../../api/administrator/flightScheduleManagement-api.js";
 import {LayuiUtils} from "../../utils/layuiUtils.js";
 import {StorageUtils} from "../../utils/utils.js";
+import {TicketSalesDetail} from "../../utils/controls.js";
 
 export let loadFlightScheduleManagementPage = (form, layDate, table) => {
 
@@ -50,7 +51,6 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
          * 页面初始化操作
          */
         pageInit = () => {
-
             if ((cityNames = StorageUtils.get('cityName'))) {
                 setSelectValue(cityNames);
                 IATACode = StorageUtils.get('IATACode');
@@ -118,9 +118,12 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
             }
         ]],
         skin: 'line',
+        method: 'post',
         title: 'Flight Status',
         height: 530,
         toolbar: `<div><button type="button" id="coc" schId class="layui-btn layui-btn-sm layui-btn-disabled">Change Status</button></div>`,
+        defaultToolbar: ['filter', 'print', 'exports'],
+        page: true,
         done: () => {
             btnCOC = $('#coc').click(function () {
                 //表格初始化完成执行的操作
@@ -135,22 +138,23 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
                         } else {
                             layer.msg('modified fail!');
                         }
-
                     }
                 )
             });
             $('a[detail]').click(function () {
-                layer.open({
-                    type:1,
-                    maxmin:true,
-                    content:`
-                    <div style="width:500px;height:500px;background-color:red"></div>
-                    `
-                })
+                let id = $(this).attr('sch');
+                fsmApi.getSeats(id, (data1) => {
+                    fsmApi.getScheduleInfo(id, (data2) => {
+                        layer.open({
+                            title: 'Ticket Sales Detail',
+                            type: 1,
+                            area: ['80%', "90%"],
+                            content: new TicketSalesDetail(data1.content, data2.content).getTemplate()
+                        })
+                    })
+                });
             });
-        },
-        defaultToolbar: ['filter', 'print', 'exports'],
-        page: true,
+        }
     });
     //交换两个输入框内的值
     swap.click(() => {
@@ -187,6 +191,5 @@ export let loadFlightScheduleManagementPage = (form, layDate, table) => {
     } else {
         reducingRecord(pageRecord.flightScheduleManagementRecord.searchOptions);
     }
-
 
 };

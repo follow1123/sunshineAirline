@@ -52,7 +52,18 @@ public class FlightScheduleManagementServiceImpl implements FlightScheduleManage
     }
 
     @Override
-    public List<Map<Integer, List<String>>> getAllSeatById(Integer schedule) {
-        return scheduleMapper.getAllSeatsById(schedule);
+    public List<Map<String, Object>> getSeats(Integer id, Boolean sold) {
+        return unionMapper.getSeats(id, sold);
     }
+
+    @Override
+    public List<Map<String, Object>> getSeats(Integer id) {
+        return unionMapper.getSeats(id, null);
+    }
+
+    @Override
+    public Map<String, Object> getScheduleInfo(Integer id) {
+        return scheduleMapper.getScheduleInfoById(id);
+    }
+
 }

@@ -25,4 +25,5 @@
         <property name="prefix" value="/WEB-INF/view/"/>
         <property name="suffix" value=".html"/>
     </bean>
+    <bean id="cusExceptionHandler" class="com.yang.config.CusExceptionHandler"/>
 </beans>

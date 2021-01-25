@@ -14,5 +14,6 @@ public interface ScheduleMapper {
     int setStatus(@Param("scheduleId")  Integer scheduleId,
                   @Param("status") String status);
 
-    List<Map<Integer, List<String>>> getAllSeatsById(@Param("scheduleId") Integer scheduleId);
+    Map<String, Object> getScheduleInfoById(@Param("id") Integer id);
+
 }
